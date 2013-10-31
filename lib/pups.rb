@@ -3,7 +3,9 @@ require "yaml"
 
 require "pups/version"
 require "pups/config"
-require "pups/process"
+require "pups/command"
+require "pups/exec_command"
+require "pups/merge_command"
 
 module Pups
   def self.log
