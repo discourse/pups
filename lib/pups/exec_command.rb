@@ -22,7 +22,7 @@ class Pups::ExecCommand < Pups::Command
   def initialize(params, cd = nil)
     @commands = []
     @params = params
-    @cd = cd
+    @cd = interpolate_params(cd)
   end
 
   def add(cmd)

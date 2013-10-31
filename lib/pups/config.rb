@@ -46,9 +46,25 @@ class Pups::Config
     return unless runit = @config["runit"]
 
     runit.each do |k,v|
-      klass = Pups::Runit.const_get(k.capitalize.to_sym)
-      klass.setup(v)
+      service = Pups::Runit.new(k)
+      service.exec = interpolate_params(v["exec"])
+      service.cd = interpolate_params(v["cd"])
+      service.env = @config["env"]
+      service.setup
     end
+  end
+
+  def interpolate_params(cmd)
+    self.class.interpolate_params(cmd,@params)
+  end
+
+  def self.interpolate_params(cmd, params)
+    return unless cmd
+    processed = cmd.dup
+    params.each do |k,v|
+      processed.gsub!("$#{k}", v)
+    end
+    processed
   end
 
 end

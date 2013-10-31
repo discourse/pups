@@ -7,12 +7,7 @@ require "pups/command"
 require "pups/exec_command"
 require "pups/merge_command"
 
-require "pups/runit/base"
-require "pups/runit/nginx"
-require "pups/runit/postgres"
-require "pups/runit/sidekiq"
-require "pups/runit/sshd"
-require "pups/runit/unicorn"
+require "pups/runit"
 
 module Pups
   def self.log

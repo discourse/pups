@@ -4,18 +4,8 @@ class Pups::Cli
       raise ArgumentError.new("Expecting config file name")
     end
 
-    config = Pups::Config.new(args[0])
-
-    config.startup
-
-    while true
-      sleep 1
-    end
-
-    trap "TERM" do
-      Pups.log.warn("Terminating child apps.")
-      Pups::Process.kill_all("TERM")
-      exit
-    end
+    Pups.log.info("Loading #{args[0]}")
+    config = Pups::Config.load(args[0])
+    config.run
   end
 end

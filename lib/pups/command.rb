@@ -8,10 +8,11 @@ class Pups::Command
   end
 
   def process_params(cmd)
-    processed = cmd.dup
-    @params.each do |k,v|
-      processed.gsub!("$#{k}", v)
-    end
+    processed = interpolate_params(cmd)
     @cd ? "cd #{cd} && #{processed}" : processed
+  end
+
+  def interpolate_params(cmd)
+    Pups::Config.interpolate_params(cmd,@params)
   end
 end
