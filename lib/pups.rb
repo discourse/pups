@@ -6,6 +6,7 @@ require "pups/config"
 require "pups/command"
 require "pups/exec_command"
 require "pups/merge_command"
+require "pups/replace_command"
 
 require "pups/runit"
 

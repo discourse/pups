@@ -34,6 +34,7 @@ class Pups::Config
         type = case k
                   when "exec" then Pups::ExecCommand
                   when "merge" then Pups::MergeCommand
+                  when "replace" then Pups::MergeCommand
                   else raise SyntaxError.new("Invalid run command #{k}")
               end
 
