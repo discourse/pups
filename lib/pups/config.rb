@@ -18,6 +18,7 @@ class Pups::Config
   def run
     load_env
     run_commands
+    setup_runit_services
   end
 
   def load_env
@@ -38,6 +39,15 @@ class Pups::Config
 
         type.run(v, @params)
       end
+    end
+  end
+
+  def setup_runit_services
+    return unless runit = @config["runit"]
+
+    runit.each do |k,v|
+      klass = Pups::Runit.const_get(k.capitalize.to_sym)
+      klass.setup(v)
     end
   end
 
