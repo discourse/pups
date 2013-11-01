@@ -1,6 +1,6 @@
 class Pups::ExecCommand < Pups::Command
-  attr_reader :commands
-  attr_reader :cd
+  attr_reader :commands, :cd
+  attr_accessor :background, :raise_on_fail, :stdin
 
   def self.from_hash(hash, params)
     cmd = new(params, hash["cd"])
@@ -9,6 +9,10 @@ class Pups::ExecCommand < Pups::Command
     when String then cmd.add(c)
     when Array then c.each{|i| cmd.add(i)}
     end
+
+    cmd.background = hash["background"]
+    cmd.raise_on_fail = hash["raise_on_fail"] if hash.key? "raise_on_fail"
+    cmd.stdin = hash["stdin"]
 
     cmd
   end
@@ -23,6 +27,7 @@ class Pups::ExecCommand < Pups::Command
     @commands = []
     @params = params
     @cd = interpolate_params(cd)
+    @raise_on_fail = true
   end
 
   def add(cmd)
@@ -32,11 +37,40 @@ class Pups::ExecCommand < Pups::Command
   def run
     commands.each do |command|
       Pups.log.info("> #{command}")
-      # TODO attach stdout and err to the log
-      pid = Process.spawn(command)
-      result = Process.wait(pid)
-      raise RuntimeError.new("Failed with return #{pid}") unless $? == 0
+
+      pid = spawn(command)
+
+
+      Pups.log.info(@result.readlines.join("\n")) if @result
     end
+  rescue
+    raise if @raise_on_fail
+  end
+
+  def spawn(command)
+    if background
+      pid = Process.spawn(command)
+      Thread.new do
+        Process.wait(pid)
+      end
+      return
+    end
+
+    IO.popen(command, "w+") do |f|
+      if stdin
+        # need a way to get stdout without blocking
+        Pups.log.info(stdin)
+        f.write stdin
+        f.close
+      else
+        Pups.log.info(f.readlines.join)
+      end
+    end
+
+    raise RuntimeError.new("Failed with return #{$?.inspect}") unless $? == 0
+
+    nil
+
   end
 
 
