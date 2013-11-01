@@ -38,9 +38,19 @@ module Pups
                     "cd" => "/home/sam"))
     end
 
+    def test_exec_works
+      ExecCommand.from_str("ls",{}).run
+    end
+
     def test_fails_for_bad_command
       assert_raises(Errno::ENOENT) do
         ExecCommand.from_str("boom",{}).run
+      end
+    end
+
+    def test_fails_for_non_zero_exit
+      assert_raises(RuntimeError) do
+        ExecCommand.from_str("chgrp -a",{}).run
       end
     end
 

@@ -32,7 +32,10 @@ class Pups::ExecCommand < Pups::Command
   def run
     commands.each do |command|
       Pups.log.info("> #{command}")
-      Pups.log.info(`#{command}`)
+      # TODO attach stdout and err to the log
+      pid = Process.spawn(command)
+      result = Process.wait(pid)
+      raise RuntimeError.new("Failed with return #{pid}") unless $? == 0
     end
   end
 
