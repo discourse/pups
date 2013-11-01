@@ -7,5 +7,6 @@ class Pups::Cli
     Pups.log.info("Loading #{args[0]}")
     config = Pups::Config.load(args[0])
     config.run
+    Pups::ExecCommand.terminate_async
   end
 end

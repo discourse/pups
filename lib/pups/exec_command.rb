@@ -2,6 +2,21 @@ class Pups::ExecCommand < Pups::Command
   attr_reader :commands, :cd
   attr_accessor :background, :raise_on_fail, :stdin
 
+  def self.terminate_async
+
+    return unless @@async_pids
+
+    # may want to be fancier with TERM and HUP
+    @@async_pids.each do |pid|
+      Process.kill("TERM",pid) rescue nil
+    end
+
+    @@async_pids.each do |pid|
+      Process.wait(pid) rescue nil
+    end
+
+  end
+
   def self.from_hash(hash, params)
     cmd = new(params, hash["cd"])
 
@@ -37,11 +52,9 @@ class Pups::ExecCommand < Pups::Command
   def run
     commands.each do |command|
       Pups.log.info("> #{command}")
-
       pid = spawn(command)
-
-
       Pups.log.info(@result.readlines.join("\n")) if @result
+      pid
     end
   rescue
     raise if @raise_on_fail
@@ -50,10 +63,12 @@ class Pups::ExecCommand < Pups::Command
   def spawn(command)
     if background
       pid = Process.spawn(command)
+      (@@async_pids ||= []) << pid
       Thread.new do
         Process.wait(pid)
+        @@async_pids.delete(pid)
       end
-      return
+      return pid
     end
 
     IO.popen(command, "w+") do |f|

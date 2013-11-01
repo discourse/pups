@@ -83,5 +83,16 @@ module Pups
       end
     end
 
+
+    def test_can_terminate_async
+      cmd = ExecCommand.new({})
+      cmd.background = true
+      pid = cmd.spawn("sleep 10 && exit 1")
+      ExecCommand.terminate_async
+      assert_raises(Errno::ECHILD) do
+        Process.waitpid(pid,Process::WNOHANG)
+      end
+    end
+
   end
 end
