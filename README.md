@@ -48,6 +48,21 @@ run:
       - echo 2
 ```
 
+Run commands in the background (for services etc)
+
+run:
+  exec:
+    cmd: /usr/bin/sshd
+    background: true
+    
+
+Suppress exceptions on certain commands
+
+run:
+   exec:
+     cmd: /test
+     raise_on_faile: false
+
 ####Replacements:
 
 ```
