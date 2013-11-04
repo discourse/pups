@@ -1,5 +1,7 @@
 class Pups::Config
 
+  attr_reader :config
+
   def self.load_file(config_file)
     new YAML.load_file(config_file)
   end
@@ -14,12 +16,47 @@ class Pups::Config
     @params = @config["params"]
     @params ||= {}
     @params["env"] = @config["env"] if @config["env"]
+    inject_hooks
   end
 
   def validate!(conf)
     # raise proper errors if nodes are missing etc
   end
 
+  def inject_hooks
+    return unless hooks = @config["hooks"]
+
+    run = @config["run"]
+
+    positions = {}
+    run.each do |row|
+      if Hash === row
+        command = row.first
+        if Hash === command[1]
+          hook = command[1]["hook"]
+          positions[hook] = row if hook
+        end
+      end
+    end
+
+    hooks.each do |name, list|
+
+      if name =~ /^after_/
+        name = name[6..-1]
+        index = run.index(positions[name]) + 1
+      end
+
+      if name =~ /^before_/
+        name = name[7..-1]
+        index = (run.index(positions[name]) || -1)
+      end
+
+      if index >= 0
+        run.insert(index, *list)
+      end
+
+    end
+  end
 
   def run
     load_env
