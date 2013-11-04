@@ -22,12 +22,11 @@ class Pups::MergeCommand < Pups::Command
   end
 
   def run
-    merged = deep_merge(YAML.load_file(@filename), @merge_hash)
+    merged = self.class.deep_merge(YAML.load_file(@filename), @merge_hash)
     File.open(@filename,"w"){|f| f.write(merged.to_yaml) }
   end
 
-  private
-  def deep_merge(first,second)
+  def self.deep_merge(first,second)
     merger = proc { |key, v1, v2| Hash === v1 && Hash === v2 ? v1.merge(v2, &merger) : v2 }
     first.merge(second, &merger)
   end

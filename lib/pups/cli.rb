@@ -11,7 +11,20 @@ class Pups::Cli
 
     Pups.log.info("Loading #{args[0]}")
     if args[0] == "--stdin"
-      config = Pups::Config.load_config(STDIN.readlines.join)
+      conf = STDIN.readlines.join
+      split = conf.split("_FILE_SEPERATOR_")
+
+      conf = nil
+      split.each do |data|
+        current = YAML.load(data)
+        if conf
+          conf = Pups::MergeCommand.deep_merge(current, conf)
+        else
+          conf = current
+        end
+      end
+
+      config = Pups::Config.new(conf)
     else
       config = Pups::Config.load_file(args[0])
     end
