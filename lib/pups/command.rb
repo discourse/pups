@@ -7,10 +7,6 @@ class Pups::Command
     end
   end
 
-  def process_params(cmd)
-    processed = interpolate_params(cmd)
-    @cd ? "cd #{cd} && #{processed}" : processed
-  end
 
   def interpolate_params(cmd)
     Pups::Config.interpolate_params(cmd,@params)

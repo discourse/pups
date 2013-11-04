@@ -88,5 +88,9 @@ class Pups::ExecCommand < Pups::Command
 
   end
 
+  def process_params(cmd)
+    processed = interpolate_params(cmd)
+    @cd ? "cd #{cd} && #{processed}" : processed
+  end
 
 end

@@ -1,13 +1,19 @@
 class Pups::Config
 
-  def self.load(config_file)
+  def self.load_file(config_file)
     new YAML.load_file(config_file)
+  end
+
+  def self.load_config(config)
+    new YAML.load(config)
   end
 
   def initialize(config)
     @config = config
     validate!(@config)
     @params = @config["params"]
+    @params ||= {}
+    @params["env"] = @config["env"] if @config["env"]
   end
 
   def validate!(conf)
@@ -18,7 +24,6 @@ class Pups::Config
   def run
     load_env
     run_commands
-    setup_runit_services
   end
 
   def load_env
@@ -35,23 +40,12 @@ class Pups::Config
                   when "exec" then Pups::ExecCommand
                   when "merge" then Pups::MergeCommand
                   when "replace" then Pups::ReplaceCommand
+                  when "file" then Pups::FileCommand
                   else raise SyntaxError.new("Invalid run command #{k}")
               end
 
         type.run(v, @params)
       end
-    end
-  end
-
-  def setup_runit_services
-    return unless runit = @config["runit"]
-
-    runit.each do |k,v|
-      service = Pups::Runit.new(k)
-      service.exec = interpolate_params(v["exec"])
-      service.cd = interpolate_params(v["cd"])
-      service.env = @config["env"]
-      service.setup
     end
   end
 

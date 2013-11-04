@@ -17,7 +17,7 @@ class Pups::MergeCommand < Pups::Command
     @params = params
 
     filename, target_param = Pups::MergeCommand.parse_command(command)
-    @filename = process_params(filename)
+    @filename = interpolate_params(filename)
     @merge_hash = params[target_param]
   end
 
