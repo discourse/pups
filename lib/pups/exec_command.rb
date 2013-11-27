@@ -4,7 +4,7 @@ class Pups::ExecCommand < Pups::Command
 
   def self.terminate_async
 
-    return unless @@async_pids
+    return unless defined? @@async_pids
 
     # may want to be fancier with TERM and HUP
     @@async_pids.each do |pid|
