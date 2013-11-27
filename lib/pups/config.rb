@@ -39,20 +39,27 @@ class Pups::Config
       end
     end
 
-    hooks.each do |name, list|
+    hooks.each do |full, list|
 
-      if name =~ /^after_/
-        name = name[6..-1]
-        index = run.index(positions[name]) + 1
+      offset = nil
+      name = nil
+
+      if full =~ /^after_/
+        name = full[6..-1]
+        offset = 1
       end
 
       if name =~ /^before_/
-        name = name[7..-1]
-        index = (run.index(positions[name]) || -1)
+        name = full[7..-1]
+        offset = 0
       end
 
-      if index >= 0
-        run.insert(index, *list)
+      index = run.index(positions[name])
+
+      if index && index >= 0
+        run.insert(index + offset, *list)
+      else
+        Pups.log.info "Skipped missing #{full} hook"
       end
 
     end
