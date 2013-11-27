@@ -26,8 +26,19 @@ class Pups::MergeCommand < Pups::Command
     File.open(@filename,"w"){|f| f.write(merged.to_yaml) }
   end
 
-  def self.deep_merge(first,second)
-    merger = proc { |key, v1, v2| Hash === v1 && Hash === v2 ? v1.merge(v2, &merger) : v2 }
+  def self.deep_merge(first,second, *args)
+    args ||= []
+    merge_arrays = args.include? :merge_arrays
+
+    merger = proc { |key, v1, v2|
+      if Hash === v1 && Hash === v2
+        v1.merge(v2, &merger)
+      elsif Array === v1 && Array === v2
+        merge_arrays ? v1 + v2 : v2
+      else
+        v2
+      end
+    }
     first.merge(second, &merger)
   end
 

@@ -16,19 +16,20 @@ class Pups::Cli
 
       conf = nil
       split.each do |data|
-        current = YAML.load(data)
+        current = YAML.load(data.strip)
         if conf
-          conf = Pups::MergeCommand.deep_merge(current, conf)
+          conf = Pups::MergeCommand.deep_merge(current, conf, :merge_arrays)
         else
           conf = current
         end
       end
-
       config = Pups::Config.new(conf)
     else
       config = Pups::Config.load_file(args[0])
     end
     config.run
+
+  ensure
     Pups::ExecCommand.terminate_async
   end
 end

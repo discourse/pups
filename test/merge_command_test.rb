@@ -3,6 +3,16 @@ require 'tempfile'
 
 module Pups
   class MergeCommandTest < MiniTest::Test
+    def test_deep_merge_arrays
+      a = {a: {a: ["hi",1]}}
+      b = {a: {a: ["hi",2]}}
+      c = {a: {}}
+
+      d = Pups::MergeCommand.deep_merge(a,b,:merge_arrays)
+      d = Pups::MergeCommand.deep_merge(d,c,:merge_arrays)
+
+      assert_equal(["hi", 1,"hi", 2], d[:a][:a])
+    end
 
     def test_merges
 
