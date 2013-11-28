@@ -49,7 +49,7 @@ class Pups::Config
         offset = 1
       end
 
-      if name =~ /^before_/
+      if full =~ /^before_/
         name = full[7..-1]
         offset = 0
       end
