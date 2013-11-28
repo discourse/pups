@@ -18,11 +18,12 @@ class Pups::Cli
       split.each do |data|
         current = YAML.load(data.strip)
         if conf
-          conf = Pups::MergeCommand.deep_merge(current, conf, :merge_arrays)
+          conf = Pups::MergeCommand.deep_merge(conf, current, :merge_arrays)
         else
           conf = current
         end
       end
+
       config = Pups::Config.new(conf)
     else
       config = Pups::Config.load_file(args[0])
