@@ -24,6 +24,7 @@ class Pups::MergeCommand < Pups::Command
   def run
     merged = self.class.deep_merge(YAML.load_file(@filename), @merge_hash)
     File.open(@filename,"w"){|f| f.write(merged.to_yaml) }
+    Pups.log.info("Merge: #{@filename} with: \n#{@merge_hash.inspect}")
   end
 
   def self.deep_merge(first,second, *args)
