@@ -82,7 +82,7 @@ class Pups::ExecCommand < Pups::Command
       end
     end
 
-    raise RuntimeError.new("Failed with return #{$?.inspect}") unless $? == 0
+    raise RuntimeError.new("#{command} failed with return #{$?.inspect}") unless $? == 0
 
     nil
 
