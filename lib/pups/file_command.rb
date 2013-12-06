@@ -31,7 +31,7 @@ class Pups::FileCommand < Pups::Command
     path = interpolate_params(@path)
 
     `mkdir -p #{File.dirname(path)}`
-    File.open(@path, "w") do |f|
+    File.open(path, "w") do |f|
       f.write(interpolate_params(contents))
     end
     if @chmod
