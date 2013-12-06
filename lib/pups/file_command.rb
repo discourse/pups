@@ -28,14 +28,16 @@ class Pups::FileCommand < Pups::Command
   end
 
   def run
-    `mkdir -p #{File.dirname(@path)}`
+    path = interpolate_params(@path)
+
+    `mkdir -p #{File.dirname(path)}`
     File.open(@path, "w") do |f|
       f.write(interpolate_params(contents))
     end
     if @chmod
-      `chmod #{@chmod} #{@path}`
+      `chmod #{@chmod} #{path}`
     end
-    Pups.log.info("File > #{@path}  chmod: #{@chmod}")
+    Pups.log.info("File > #{path}  chmod: #{@chmod}")
   end
 
 end
