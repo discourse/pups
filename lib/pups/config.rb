@@ -15,7 +15,6 @@ class Pups::Config
     validate!(@config)
     @params = @config["params"]
     @params ||= {}
-    @params["env"] = @config["env"] if @config["env"]
     inject_hooks
   end
 
@@ -66,15 +65,7 @@ class Pups::Config
   end
 
   def run
-    load_env
     run_commands
-  end
-
-  def load_env
-    @config["env"].each do |k,v|
-      ENV[k.to_s] = v.to_s
-    end if @config["env"]
-    Pups.log.info "Environment Loaded"
   end
 
   def run_commands

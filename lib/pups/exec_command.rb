@@ -27,7 +27,7 @@ class Pups::ExecCommand < Pups::Command
 
     cmd.background = hash["background"]
     cmd.raise_on_fail = hash["raise_on_fail"] if hash.key? "raise_on_fail"
-    cmd.stdin = hash["stdin"]
+    cmd.stdin = interpolate_params(hash["stdin"], params)
 
     cmd
   end

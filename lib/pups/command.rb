@@ -7,8 +7,11 @@ class Pups::Command
     end
   end
 
+  def self.interpolate_params(cmd,params)
+    Pups::Config.interpolate_params(cmd,params)
+  end
 
   def interpolate_params(cmd)
-    Pups::Config.interpolate_params(cmd,@params)
+    Pups::Command.interpolate_params(cmd,@params)
   end
 end

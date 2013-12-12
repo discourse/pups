@@ -17,14 +17,7 @@ class Pups::FileCommand < Pups::Command
   end
 
   def params=(p)
-    return @params = p unless type == :bash
-
-    @params = p.dup
-    @params.each do |k,v|
-      if Hash === v
-        @params[k] = v.map{|k,v| "export #{k}=#{v}"}.join("\n")
-      end
-    end
+    @params = p
   end
 
   def run
