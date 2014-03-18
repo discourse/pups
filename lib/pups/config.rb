@@ -1,6 +1,6 @@
 class Pups::Config
 
-  attr_reader :config
+  attr_reader :config, :params
 
   def self.load_file(config_file)
     new YAML.load_file(config_file)
@@ -15,6 +15,9 @@ class Pups::Config
     validate!(@config)
     @params = @config["params"]
     @params ||= {}
+    ENV.each do |k,v|
+      @params["$ENV_#{k}"] = v
+    end
     inject_hooks
   end
 

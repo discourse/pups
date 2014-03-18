@@ -14,7 +14,6 @@ module Pups
     end
 
     def test_reverse
-
       source = <<SCR
 1 one thousand 1
 1 one thousand 1
@@ -38,30 +37,50 @@ SCR
     ensure
       f.unlink
     end
-  end
 
-  def test_parse
+    def test_replace_with_env
+      source = "123"
 
-    source = <<SCR
+      f = Tempfile.new("test")
+      f.write source
+      f.close
+
+      hash = {
+        "filename" => f.path,
+        "from" => "123",
+        "to" => "hello $hellos"
+      }
+
+      command = ReplaceCommand.from_hash(hash, {"hello" => "world"})
+      assert_equal("hello worlds", command.replaced_text)
+
+    ensure
+      f.unlink
+    end
+
+    def test_parse
+
+      source = <<SCR
 this {
 is a test
 }
 SCR
 
-    f = Tempfile.new("test")
-    f.write source
-    f.close
+      f = Tempfile.new("test")
+      f.write source
+      f.close
 
-    hash = {
-      "filename" => f.path,
-      "from" => "/this[^\}]+\}/m",
-      "to" => "hello world"
-    }
+      hash = {
+        "filename" => f.path,
+        "from" => "/this[^\}]+\}/m",
+        "to" => "hello world"
+      }
 
-    command = ReplaceCommand.from_hash(hash, {})
+      command = ReplaceCommand.from_hash(hash, {})
 
-    assert_equal("hello world", command.replaced_text.strip)
-  ensure
-    f.unlink
+      assert_equal("hello world", command.replaced_text.strip)
+    ensure
+      f.unlink
+    end
   end
 end

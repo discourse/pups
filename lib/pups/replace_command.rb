@@ -21,11 +21,15 @@ class Pups::ReplaceCommand < Pups::Command
   end
 
   def replaced_text
+    new_to = to
+    if String === to
+      new_to = interpolate_params(to)
+    end
     if direction == :reverse
       index = text.rindex(from)
-      text[0..index-1] << text[index..-1].sub(from,to)
+      text[0..index-1] << text[index..-1].sub(from,new_to)
     else
-      text.sub(from,to)
+      text.sub(from,new_to)
     end
   end
 

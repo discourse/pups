@@ -4,6 +4,12 @@ require 'tempfile'
 module Pups
   class ConfigTest < MiniTest::Test
 
+    def test_config_from_env
+      ENV["HELLO"] = "world"
+      config = Config.new({})
+      assert_equal("world", config.params["$ENV_HELLO"])
+    end
+
     def test_integration
 
       f = Tempfile.new("test")
