@@ -38,6 +38,32 @@ SCR
       f.unlink
     end
 
+    def test_global
+      source = <<SCR
+one
+one
+one
+SCR
+
+      f = Tempfile.new("test")
+      f.write source
+      f.close
+
+      hash = {
+        "filename" => f.path,
+        "from" => "/one/",
+        "to" => "two",
+        "global" => "true"
+      }
+
+      command = ReplaceCommand.from_hash(hash, {})
+
+      assert_equal("two\ntwo\ntwo\n", command.replaced_text)
+    ensure
+      f.unlink
+
+    end
+
     def test_replace_with_env
       source = "123"
 

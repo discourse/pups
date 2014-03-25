@@ -1,5 +1,5 @@
 class Pups::ReplaceCommand < Pups::Command
-  attr_accessor :text, :from, :to, :filename, :direction
+  attr_accessor :text, :from, :to, :filename, :direction, :global
 
   def self.from_hash(hash, params)
     replacer = new(params)
@@ -8,6 +8,7 @@ class Pups::ReplaceCommand < Pups::Command
     replacer.text = File.read(hash["filename"])
     replacer.filename = hash["filename"]
     replacer.direction = hash["direction"].to_sym if hash["direction"]
+    replacer.global = hash["global"].to_s == "true"
     replacer
   end
 
@@ -25,7 +26,9 @@ class Pups::ReplaceCommand < Pups::Command
     if String === to
       new_to = interpolate_params(to)
     end
-    if direction == :reverse
+    if global
+      text.gsub(from,new_to)
+    elsif direction == :reverse
       index = text.rindex(from)
       text[0..index-1] << text[index..-1].sub(from,new_to)
     else
