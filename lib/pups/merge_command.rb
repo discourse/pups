@@ -36,6 +36,8 @@ class Pups::MergeCommand < Pups::Command
         v1.merge(v2, &merger)
       elsif Array === v1 && Array === v2
         merge_arrays ? v1 + v2 : v2
+      elsif NilClass === v2
+        v1
       else
         v2
       end
