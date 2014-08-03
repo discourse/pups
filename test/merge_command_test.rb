@@ -40,6 +40,17 @@ YAML
       "password" => "xyz"
     }}, changed)
 
+    def test_deep_merge_nil
+      a = {param: {venison: "yes please"}}
+      b = {param: nil}
+
+      r1 = Pups::MergeCommand.deep_merge(a,b)
+      r2 = Pups::MergeCommand.deep_merge(b,a)
+
+      assert_equal({venison: "yes please"}, r1[:param])
+      assert_equal({venison: "yes please"}, r2[:param])
+    end
+
     ensure
       f.unlink
     end
