@@ -69,6 +69,17 @@ class Pups::Config
 
   def run
     run_commands
+  rescue => e
+    puts
+    puts
+    puts "FAILED"
+    puts "-" * 20
+    puts "#{e.class}: #{e}"
+    puts "Location of failure: #{e.backtrace[0]}"
+    if @last_command
+      puts "#{@last_command[:command]} failed with the params #{@last_command[:params].inspect}"
+    end
+    exit 1
   end
 
   def run_commands
@@ -82,6 +93,7 @@ class Pups::Config
                   else raise SyntaxError.new("Invalid run command #{k}")
               end
 
+        @last_command = { command: k, params: v }
         type.run(v, @params)
       end
     end
@@ -95,7 +107,7 @@ class Pups::Config
     return unless cmd
     processed = cmd.dup
     params.each do |k,v|
-      processed.gsub!("$#{k}", v)
+      processed.gsub!("$#{k}", v.to_s)
     end
     processed
   end
