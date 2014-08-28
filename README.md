@@ -31,7 +31,7 @@ run:
   exec: /bin/bash -c 'echo $hello >>> hello'
 ```
 
-Running: `pups somefile.yaml` will exectue the shell script resulting in a file called "hello" with the "hello world" contents
+Running: `pups somefile.yaml` will execute the shell script resulting in a file called "hello" with the "hello world" contents
 
 ### Features:
 
