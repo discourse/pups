@@ -94,5 +94,20 @@ module Pups
       end
     end
 
+    def test_can_terminate_rogues
+      cmd = ExecCommand.new({})
+      cmd.background = true
+      pid = cmd.spawn("trap \"echo TERM && sleep 100\" TERM ; sleep 100")
+      # we need to give bash enough time to trap
+      sleep 0.01
+
+      ExecCommand.terminate_async(wait: 0.1)
+
+      assert_raises(Errno::ECHILD) do
+        Process.waitpid(pid,Process::WNOHANG)
+      end
+
+    end
+
   end
 end

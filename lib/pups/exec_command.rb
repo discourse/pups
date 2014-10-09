@@ -1,19 +1,38 @@
+require 'timeout'
+
 class Pups::ExecCommand < Pups::Command
   attr_reader :commands, :cd
-  attr_accessor :background, :raise_on_fail, :stdin
+  attr_accessor :background, :raise_on_fail, :stdin, :stop_signal
 
-  def self.terminate_async
+  def self.terminate_async(opts={})
 
-    return unless defined? @@async_pids
+    return unless defined? @@asyncs
 
-    # may want to be fancier with TERM and HUP
-    @@async_pids.each do |pid|
-      Process.kill("TERM",pid) rescue nil
+    Pups.log.info("Terminating async processes")
+
+    @@asyncs.each do |async|
+      Pups.log.info("Sending #{async[:stop_signal]} to #{async[:command]} pid: #{async[:pid]}")
+      Process.kill(async[:stop_signal],async[:pid]) rescue nil
     end
 
-    @@async_pids.each do |pid|
-      Process.wait(pid) rescue nil
-    end
+    @@asyncs.map do |async|
+      Thread.new do
+        begin
+          Timeout.timeout(opts[:wait] || 10) do
+            Process.wait(async[:pid]) rescue nil
+          end
+        rescue Timeout::Error
+          Pups.log.info("#{async[:command]} pid:#{async[:pid]} did not terminate cleanly, forcing termination!")
+          begin
+            Process.kill("KILL",async[:pid])
+            Process.wait(async[:pid])
+          rescue Errno::ESRCH
+          rescue Errno::ECHILD
+          end
+
+        end
+      end
+    end.each(&:join)
 
   end
 
@@ -26,6 +45,7 @@ class Pups::ExecCommand < Pups::Command
     end
 
     cmd.background = hash["background"]
+    cmd.stop_signal = hash["stop_signal"] || "TERM"
     cmd.raise_on_fail = hash["raise_on_fail"] if hash.key? "raise_on_fail"
     cmd.stdin = interpolate_params(hash["stdin"], params)
 
@@ -63,10 +83,10 @@ class Pups::ExecCommand < Pups::Command
   def spawn(command)
     if background
       pid = Process.spawn(command)
-      (@@async_pids ||= []) << pid
+      (@@asyncs ||= []) << {pid: pid, command: command, stop_signal: (stop_signal || "TERM")}
       Thread.new do
         Process.wait(pid)
-        @@async_pids.delete(pid)
+        @@asyncs.delete_if{|async| async[:pid] == pid}
       end
       return pid
     end
