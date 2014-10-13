@@ -108,6 +108,7 @@ run:
 Will merge the yaml file with the inline contents
 
 ####A common environment
+This is implemented in discourse_docker's launcher, not in pups - therefore it does not work in standalone pups.
 
 ```
 env:
