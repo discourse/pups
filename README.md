@@ -63,7 +63,7 @@ Suppress exceptions on certain commands
 run:
    exec:
      cmd: /test
-     raise_on_faile: false
+     raise_on_fail: false
 ```
 
 ####Replacements:
