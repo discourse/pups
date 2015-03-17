@@ -88,7 +88,15 @@ run:
       }"
 ```
 
-Multiline replace using regex
+Additional params:
+
+Global replace (as opposed to first match)
+```
+global: true
+```
+
+
+
 
 ####Merge yaml files:
 
