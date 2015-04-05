@@ -95,8 +95,23 @@ Global replace (as opposed to first match)
 global: true
 ```
 
+####Hooks
+Execute commands before and after a specific command by defining a hook.
+```
+run
+  - exec:
+      hook: hello
+      cmd: echo 'Hello'
 
+hooks:
+  before_hello:
+    - exec:
+        cmd: echo 'Starting...'
 
+  after_hello:
+    - exec:
+        cmd: echo 'World'
+```
 
 ####Merge yaml files:
 
