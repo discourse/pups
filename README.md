@@ -28,7 +28,7 @@ params:
   hello: hello world
 
 run:
-  exec: /bin/bash -c 'echo $hello >>> hello'
+  - exec: /bin/bash -c 'echo $hello >>> hello'
 ```
 
 Running: `pups somefile.yaml` will execute the shell script resulting in a file called "hello" with the "hello world" contents
@@ -41,39 +41,39 @@ Run multiple commands in one path:
 
 ```
 run:
-  exec:
-    cd: some/path
-    cmd:
-      - echo 1
-      - echo 2
+  - exec:
+      cd: some/path
+      cmd:
+        - echo 1
+        - echo 2
 ```
 
 Run commands in the background (for services etc)
 
 ```
 run:
-  exec:
-    cmd: /usr/bin/sshd
-    background: true
-``` 
+  - exec:
+      cmd: /usr/bin/sshd
+      background: true
+```
 
 Suppress exceptions on certain commands
 
 ```
 run:
-   exec:
-     cmd: /test
-     raise_on_fail: false
+  - exec:
+      cmd: /test
+      raise_on_fail: false
 ```
 
 ####Replacements:
 
 ```
 run:
-  replace:
-    filename: "/etc/redis/redis.conf"
-    from: /^pidfile.*$/
-    to: ""
+  - replace:
+      filename: "/etc/redis/redis.conf"
+      from: /^pidfile.*$/
+      to: ""
 ```
 
 Will substitued the regex with blank, removing the pidfile line
@@ -95,8 +95,23 @@ Global replace (as opposed to first match)
 global: true
 ```
 
+####Hooks
+Execute commands before and after a specific command by defining a hook.
+```
+run
+  - exec:
+      hook: hello
+      cmd: echo 'Hello'
 
+hooks:
+  before_hello:
+    - exec:
+        cmd: echo 'Starting...'
 
+  after_hello:
+    - exec:
+        cmd: echo 'World'
+```
 
 ####Merge yaml files:
 
