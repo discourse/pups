@@ -35,6 +35,22 @@ Running: `pups somefile.yaml` will execute the shell script resulting in a file 
 
 ### Features:
 
+####Environment Variables
+
+By default, pups automatically imports your environment variables and include them
+as params.
+
+```
+# In bash
+export SECRET_KEY="secret value"
+
+# In somefile.yaml
+run:
+  - exec: echo "$SECRET_KEY"
+```
+
+Running the above code with pups will produce `secret value`.
+
 ####Execution
 
 Run multiple commands in one path:
