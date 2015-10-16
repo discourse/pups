@@ -1,6 +1,6 @@
 # pups
 
-Simple yaml based bootstrapper
+Simple YAML--based bootstrapper
 
 ## Installation
 
@@ -31,14 +31,13 @@ run:
   - exec: /bin/bash -c 'echo $hello >>> hello'
 ```
 
-Running: `pups somefile.yaml` will execute the shell script resulting in a file called "hello" with the "hello world" contents
+Running: `pups somefile.yaml` will execute the shell script resulting in a file called "hello" with the contents "hello world".
 
-### Features:
+### Features
 
-####Environment Variables
+#### Environment Variables
 
-By default, pups automatically imports your environment variables and include them
-as params.
+By default, pups automatically imports your environment variables and includes them as params.
 
 ```
 # In bash
@@ -51,7 +50,7 @@ run:
 
 Running the above code with pups will produce `secret value`.
 
-####Execution
+#### Execution
 
 Run multiple commands in one path:
 
@@ -82,7 +81,7 @@ run:
       raise_on_fail: false
 ```
 
-####Replacements:
+#### Replacements:
 
 ```
 run:
@@ -92,7 +91,7 @@ run:
       to: ""
 ```
 
-Will substitued the regex with blank, removing the pidfile line
+Will substitute the regex with blank, removing the pidfile line
 
 ```
 run:
@@ -111,8 +110,10 @@ Global replace (as opposed to first match)
 global: true
 ```
 
-####Hooks
+#### Hooks
+
 Execute commands before and after a specific command by defining a hook.
+
 ```
 run
   - exec:
@@ -129,7 +130,7 @@ hooks:
         cmd: echo 'World'
 ```
 
-####Merge yaml files:
+#### Merge yaml files
 
 ```
 home: /var/www/my_app
@@ -144,9 +145,10 @@ run:
 
 ```
 
-Will merge the yaml file with the inline contents
+Will merge the yaml file with the inline contents.
 
-####A common environment
+#### A common environment
+
 This is implemented in discourse_docker's launcher, not in pups - therefore it does not work in standalone pups.
 
 ```
