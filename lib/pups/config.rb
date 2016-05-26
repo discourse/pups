@@ -69,17 +69,28 @@ class Pups::Config
 
   def run
     run_commands
-  rescue => e
-    puts
-    puts
-    puts "FAILED"
-    puts "-" * 20
-    puts "#{e.class}: #{e}"
-    puts "Location of failure: #{e.backtrace[0]}"
-    if @last_command
-      puts "#{@last_command[:command]} failed with the params #{@last_command[:params].inspect}"
+  rescue Pups::ExecError => e
+    # 77 is special it means retry
+    if e.exit_code == 77
+      exit 77
     end
-    exit 1
+  rescue => e
+    exit_code = 1
+    if Pups::ExecError === e
+      exit_code = e.exit_code
+    end
+    unless exit_code == 77
+      puts
+      puts
+      puts "FAILED"
+      puts "-" * 20
+      puts "#{e.class}: #{e}"
+      puts "Location of failure: #{e.backtrace[0]}"
+      if @last_command
+        puts "#{@last_command[:command]} failed with the params #{@last_command[:params].inspect}"
+      end
+    end
+    exit exit_code
   end
 
   def run_commands
