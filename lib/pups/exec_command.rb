@@ -104,7 +104,7 @@ class Pups::ExecCommand < Pups::Command
 
     unless $? == 0
       err = Pups::ExecError.new("#{command} failed with return #{$?.inspect}")
-      err.exit_code = $?
+      err.exit_code = $?.exitstatus
       raise err
     end
 
