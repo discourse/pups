@@ -33,7 +33,7 @@ class Pups::Cli
     ensure
       Pups::ExecCommand.terminate_async
     end
-  rescue ExecError => e
+  rescue Pups::ExecError => e
     # 77 is special it means retry
     unless e.exit_code == 77
       STDERR.puts e.message
