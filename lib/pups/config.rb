@@ -69,11 +69,6 @@ class Pups::Config
 
   def run
     run_commands
-  rescue Pups::ExecError => e
-    # 77 is special it means retry
-    if e.exit_code == 77
-      exit 77
-    end
   rescue => e
     exit_code = 1
     if Pups::ExecError === e
