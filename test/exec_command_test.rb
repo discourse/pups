@@ -78,7 +78,7 @@ module Pups
     end
 
     def test_fails_for_non_zero_exit
-      assert_raises(RuntimeError) do
+      assert_raises(Pups::ExecError) do
         ExecCommand.from_str("chgrp -a",{}).run
       end
     end

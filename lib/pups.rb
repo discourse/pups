@@ -12,6 +12,10 @@ require "pups/file_command"
 require "pups/runit"
 
 module Pups
+  class ExecError < RuntimeError
+    attr_accessor :exit_code
+  end
+
   def self.log
     # at the moment docker likes this
     @logger ||= Logger.new(STDERR)
