@@ -9,7 +9,7 @@ class Pups::Config
       STDERR.puts "Failed to parse #{config_file}"
       STDERR.puts "This is probably a formatting error in #{config_file}"
       STDERR.puts "Cannot continue. Edit #{config_file} and try again."
-      exit
+      raise
     end
   end
 
