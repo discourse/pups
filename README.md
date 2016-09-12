@@ -28,7 +28,7 @@ params:
   hello: hello world
 
 run:
-  - exec: /bin/bash -c 'echo $hello >>> hello'
+  - exec: /bin/bash -c 'echo $hello >> hello'
 ```
 
 Running: `pups somefile.yaml` will execute the shell script resulting in a file called "hello" with the contents "hello world".
