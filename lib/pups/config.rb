@@ -3,7 +3,14 @@ class Pups::Config
   attr_reader :config, :params
 
   def self.load_file(config_file)
-    new YAML.load_file(config_file)
+    begin
+      new YAML.load_file(config_file)
+    rescue Exception
+      STDERR.puts "Failed to parse #{config_file}"
+      STDERR.puts "This is probably a formatting error in #{config_file}"
+      STDERR.puts "Cannot continue. Edit #{config_file} and try again."
+      exit
+    end
   end
 
   def self.load_config(config)
