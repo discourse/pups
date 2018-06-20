@@ -85,7 +85,11 @@ class Pups::ExecCommand < Pups::Command
       pid = Process.spawn(command)
       (@@asyncs ||= []) << {pid: pid, command: command, stop_signal: (stop_signal || "TERM")}
       Thread.new do
-        Process.wait(pid)
+        begin
+          Process.wait(pid)
+        rescue Errno::ECHILD
+          # already exited so skip
+        end
         @@asyncs.delete_if{|async| async[:pid] == pid}
       end
       return pid
