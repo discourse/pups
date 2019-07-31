@@ -1,11 +1,12 @@
 class Pups::FileCommand < Pups::Command
-  attr_accessor :path, :contents, :params, :type, :chmod
+  attr_accessor :path, :contents, :params, :type, :chmod, :chown
 
   def self.from_hash(hash, params)
     command = new
     command.path = hash["path"]
     command.contents = hash["contents"]
     command.chmod = hash["chmod"]
+    command.chown = hash["chown"]
     command.params = params
 
     command
@@ -30,7 +31,10 @@ class Pups::FileCommand < Pups::Command
     if @chmod
       `chmod #{@chmod} #{path}`
     end
-    Pups.log.info("File > #{path}  chmod: #{@chmod}")
+    if @chown
+      `chown #{@chown} #{path}`
+    end
+    Pups.log.info("File > #{path}  chmod: #{@chmod}  chown: #{@chown}")
   end
 
 end
