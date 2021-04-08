@@ -10,35 +10,16 @@ module Pups
       assert_equal("world", config.params["$ENV_HELLO"])
     end
 
-    def test_env_param
-      ENV["FOO"] = "BAR"
-      config = <<YAML
-env:
-  BAR: baz
-  hello: WORLD
-  one: 1
-YAML
-
-      config = Config.new(YAML.load(config))
-      assert_equal("BAR", config.params["$ENV_FOO"])
-      assert_equal("baz", config.params["$ENV_BAR"])
-      assert_equal("WORLD", config.params["$ENV_hello"])
-      assert_equal("1", config.params["$ENV_one"])
-    end
-
     def test_integration
 
       f = Tempfile.new("test")
       f.close
 
       config = <<YAML
-env:
-  PLANET: world
 params:
   run: #{f.path}
-  greeting: hello
 run:
-  - exec: echo $greeting $PLANET >> #{f.path}
+  - exec: echo hello world >> #{f.path}
 YAML
 
       Config.new(YAML.load(config)).run
