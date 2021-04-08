@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = Pups::VERSION
   spec.authors       = ["Sam Saffron"]
   spec.email         = ["sam.saffron@gmail.com"]
-  spec.description   = %q{Process orchestrator}
-  spec.summary       = %q{Process orchestrator}
+  spec.description   = %q{Simple docker image creator}
+  spec.summary       = %q{Toolkit for orchestrating a composed docker image}
   spec.homepage      = ""
   spec.license       = "MIT"
 
