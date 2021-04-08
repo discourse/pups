@@ -20,7 +20,7 @@ class Pups::Config
   def initialize(config)
     @config = config
     validate!(@config)
-    @config["env"]&.each {|k,v| ENV[k] = v}
+    @config["env"]&.each {|k,v| ENV[k] = v.to_s}
     @params = @config["params"]
     @params ||= {}
     ENV.each do |k,v|

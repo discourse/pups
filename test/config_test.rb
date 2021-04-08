@@ -16,12 +16,14 @@ module Pups
 env:
   BAR: baz
   hello: WORLD
+  one: 1
 YAML
 
       config = Config.new(YAML.load(config))
       assert_equal("BAR", config.params["$ENV_FOO"])
       assert_equal("baz", config.params["$ENV_BAR"])
       assert_equal("WORLD", config.params["$ENV_hello"])
+      assert_equal("1", config.params["$ENV_one"])
     end
 
     def test_integration
