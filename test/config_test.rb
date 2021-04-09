@@ -26,6 +26,26 @@ YAML
       assert_equal("1", config.params["$ENV_one"])
     end
 
+    def test_env_with_template
+      ENV["FOO"] = "BAR"
+      config = <<YAML
+env:
+  greeting: "{{hello}}, {{planet}}!"
+  one: 1
+  other: "where are we on {{planet}}?"
+env_template:
+  planet: pluto
+  hello: hola
+YAML
+      config_hash = YAML.load(config)
+
+      config = Config.new(config_hash)
+      assert_equal("hola, pluto!", config.params["$ENV_greeting"])
+      assert_equal("1", config.params["$ENV_one"])
+      assert_equal("BAR", config.params["$ENV_FOO"])
+      assert_equal("where are we on pluto?", config.params["$ENV_other"])
+    end
+
     def test_integration
 
       f = Tempfile.new("test")

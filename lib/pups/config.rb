@@ -21,6 +21,19 @@ class Pups::Config
     @config = config
     validate!(@config)
     @config["env"]&.each {|k,v| ENV[k] = v.to_s}
+
+    # Transform any templated environment variables prior to copying to params.
+    # This has no effect if no env_template was provided.
+    transformed_env_vars = {}
+    @config["env_template"]&.each do |k,v|
+      ENV.each do |key, val|
+        if val =~ /\{\{#{k}\}\}/
+          transformed_env_vars[key] = val.gsub("{{#{k}}}", v)
+        end
+      end
+      ENV.replace(ENV.to_hash.merge(transformed_env_vars))
+    end
+
     @params = @config["params"]
     @params ||= {}
     ENV.each do |k,v|
