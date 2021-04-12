@@ -27,11 +27,10 @@ class Pups::Config
     transformed_env_vars = {}
     @config["env_template"]&.each do |k,v|
       ENV.each do |key, val|
-        if val =~ /\{\{#{k}\}\}/
-          transformed_env_vars[key] = val.gsub("{{#{k}}}", v)
+        if val.include?("{{#{k}}}")
+          ENV[key] = val.gsub("{{#{k}}}", v.to_s)
         end
       end
-      ENV.replace(ENV.to_hash.merge(transformed_env_vars))
     end
 
     @params = @config["params"]
