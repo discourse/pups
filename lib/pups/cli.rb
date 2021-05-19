@@ -1,16 +1,28 @@
+require 'optparse'
+
 class Pups::Cli
 
-  def self.usage
-    puts "Usage: pups FILE or pups --stdin"
-    exit 1
-  end
   def self.run(args)
-    if args.length != 1
-      usage
+    options = {}
+    opt = OptionParser.new do |opts|
+      opts.banner = 'Usage: pups [FILE|--stdin]'
+      opts.on('--stdin', 'Read input from stdin.')
+      opts.on('-h', '--help') do
+        puts opts
+        exit
+      end
+    end
+    opt.parse!(into: options)
+
+    input_file = options[:stdin] ? "stdin" : ARGV.last
+    if !input_file
+      puts opt
+      exit
     end
 
-    Pups.log.info("Loading #{args[0]}")
-    if args[0] == "--stdin"
+    Pups.log.info("Reading from #{input_file}")
+
+    if options[:stdin]
       conf = STDIN.readlines.join
       split = conf.split("_FILE_SEPERATOR_")
 
@@ -26,8 +38,9 @@ class Pups::Cli
 
       config = Pups::Config.new(conf)
     else
-      config = Pups::Config.load_file(args[0])
+      config = Pups::Config.load_file(input_file)
     end
+
     config.run
   ensure
     Pups::ExecCommand.terminate_async
