@@ -2,7 +2,7 @@ require 'optparse'
 
 class Pups::Cli
 
-  def self.run(args)
+  def self.parse_args(args)
     options = {}
     opt = OptionParser.new do |opts|
       opts.banner = 'Usage: pups [FILE|--stdin]'
@@ -12,9 +12,13 @@ class Pups::Cli
         exit
       end
     end
-    opt.parse!(into: options)
+    opt.parse!(args, into: options)
+    options
+  end
 
-    input_file = options[:stdin] ? "stdin" : ARGV.last
+  def self.run(args)
+    options = parse_args(args)
+    input_file = options[:stdin] ? "stdin" : args.last
     if !input_file
       puts opt
       exit
