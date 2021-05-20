@@ -149,15 +149,31 @@ Will merge the yaml file with the inline contents.
 
 #### A common environment
 
-This is implemented in discourse_docker's launcher, not in pups - therefore it does not work in standalone pups.
+Environment variables can be specified under the `env` key, which will be included in the environment for the template.
 
 ```
 env:
-   MY_ENV: 1
+  MY_ENV: "a couple of words"
+run:
+  - exec: echo $MY_ENV > tmpfile
 ```
 
-All executions will get this environment set up
+`tmpfile` will contain `a couple of words`.
 
+You can also specify variables to be templated within the environment, such as:
+
+```
+env:
+  greeting: "hello, {{location}}!"
+env_template:
+  location: world
+```
+
+In this example, the `greeting` environment variable will be set to `hello, world!` during initialisation as the `{{location}}` variable will be templated as `world`.
+Pups will also look in the environment itself at runtime for template variables, prefixed with `env_template_<variable name>`.
+Note that strings should be quoted to prevent YAML from parsing the `{ }` characters.
+
+All commands executed will inherit the environment once parsing and variable interpolation has been completed.
 
 ## Contributing
 

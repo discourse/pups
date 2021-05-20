@@ -20,6 +20,31 @@ class Pups::Config
   def initialize(config)
     @config = config
     validate!(@config)
+
+    # Processing of the environment variables occurs first. This merges environment
+    # from the yaml templates and process ENV, and templates any variables found
+    # either via yaml or ENV.
+    @config["env"]&.each {|k,v| ENV[k] = v.to_s}
+    @config["env_template"] ||= {}
+
+    # Merging env_template variables from ENV and templates.
+    ENV.each do |k,v|
+      if k.include?('env_template_')
+        key = k.gsub('env_template_', '')
+        @config["env_template"][key] = v
+      end
+    end
+
+    # Now transform any templated environment variables prior to copying to params.
+    # This has no effect if no env_template was provided.
+    @config["env_template"]&.each do |k,v|
+      ENV.each do |key, val|
+        if val.include?("{{#{k}}}")
+          ENV[key] = val.gsub("{{#{k}}}", v.to_s)
+        end
+      end
+    end
+
     @params = @config["params"]
     @params ||= {}
     ENV.each do |k,v|
