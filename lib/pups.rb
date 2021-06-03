@@ -1,15 +1,17 @@
-require "logger"
-require "yaml"
+# frozen_string_literal: true
 
-require "pups/version"
-require "pups/config"
-require "pups/command"
-require "pups/exec_command"
-require "pups/merge_command"
-require "pups/replace_command"
-require "pups/file_command"
+require 'logger'
+require 'yaml'
 
-require "pups/runit"
+require 'pups/version'
+require 'pups/config'
+require 'pups/command'
+require 'pups/exec_command'
+require 'pups/merge_command'
+require 'pups/replace_command'
+require 'pups/file_command'
+
+require 'pups/runit'
 
 module Pups
   class ExecError < RuntimeError
@@ -18,7 +20,7 @@ module Pups
 
   def self.log
     # at the moment docker likes this
-    @logger ||= Logger.new(STDERR)
+    @logger ||= Logger.new($stderr)
   end
 
   def self.log=(logger)
