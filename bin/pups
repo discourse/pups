@@ -1,9 +1,9 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
-$LOAD_PATH.unshift File.dirname(__FILE__) + "/../lib"
+$LOAD_PATH.unshift "#{File.dirname(__FILE__)}/../lib"
 
-require "pups"
-require "pups/cli"
+require 'pups'
+require 'pups/cli'
 
 Pups::Cli.run(ARGV)
-

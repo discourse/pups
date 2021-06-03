@@ -1,4 +1,4 @@
-name: Tests
+name: Lint
 
 on:
   push:
@@ -7,8 +7,8 @@ on:
   pull_request: {}
 
 jobs:
-  test:
-    name: "pups tests"
+  lint:
+    name: "pups lint"
     runs-on: ${{ matrix.os }}
     timeout-minutes: 5
 
@@ -24,6 +24,4 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
-      - name: Run minitest
-        run: |
-          rake test
+      - run: bundle exec rubocop
