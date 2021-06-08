@@ -26,4 +26,12 @@ module Pups
   def self.log=(logger)
     @logger = logger
   end
+
+  def self.silence
+    if @logger
+      @logger.close
+    end
+
+    @logger = Logger.new(File.open(File::NULL, "w"))
+  end
 end

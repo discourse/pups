@@ -4,17 +4,21 @@ require 'optparse'
 
 module Pups
   class Cli
-    def self.parse_args(args)
-      options = {}
-      opt = OptionParser.new do |opts|
+    def self.opts
+      OptionParser.new do |opts|
         opts.banner = 'Usage: pups [FILE|--stdin]'
         opts.on('--stdin', 'Read input from stdin.')
+        opts.on('--quiet', "Don't print any logs.")
         opts.on('-h', '--help') do
           puts opts
           exit
         end
       end
-      opt.parse!(args, into: options)
+    end
+
+    def self.parse_args(args)
+      options = {}
+      opts.parse!(args, into: options)
       options
     end
 
@@ -22,8 +26,12 @@ module Pups
       options = parse_args(args)
       input_file = options[:stdin] ? 'stdin' : args.last
       unless input_file
-        puts opt
+        puts opts.parse!(%w[--help])
         exit
+      end
+
+      if options[:quiet]
+        Pups.silence
       end
 
       Pups.log.info("Reading from #{input_file}")
