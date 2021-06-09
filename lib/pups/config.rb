@@ -4,8 +4,8 @@ module Pups
   class Config
     attr_reader :config, :params
 
-    def self.load_file(config_file)
-      new YAML.load_file(config_file)
+    def self.load_file(config_file, ignored = nil)
+      Config.new(YAML.load_file(config_file), ignored)
     rescue Exception
       warn "Failed to parse #{config_file}"
       warn "This is probably a formatting error in #{config_file}"
@@ -13,13 +13,16 @@ module Pups
       raise
     end
 
-    def self.load_config(config)
-      new YAML.safe_load(config)
+    def self.load_config(config, ignored = nil)
+      Config.new(YAML.safe_load(config), ignored)
     end
 
-    def initialize(config)
+    def initialize(config, ignored = nil)
       @config = config
       validate!(@config)
+
+      # remove any ignored config elements prior to any more processing
+      ignored&.each { |e| @config.delete(e) }
 
       # Processing of the environment variables occurs first. This merges environment
       # from the yaml templates and process ENV, and templates any variables found
@@ -113,7 +116,7 @@ module Pups
     end
 
     def run_commands
-      @config['run'].each do |item|
+      @config['run']&.each do |item|
         item.each do |k, v|
           type = case k
                  when 'exec' then Pups::ExecCommand

@@ -9,6 +9,7 @@ module Pups
         opts.banner = 'Usage: pups [FILE|--stdin]'
         opts.on('--stdin', 'Read input from stdin.')
         opts.on('--quiet', "Don't print any logs.")
+        opts.on('--ignore <element(s)>', Array, "Ignore these template configuration elements, multiple elements can be provided (comma-delimited).")
         opts.on('-h', '--help') do
           puts opts
           exit
@@ -50,9 +51,9 @@ module Pups
           end
         end
 
-        config = Pups::Config.new(conf)
+        config = Pups::Config.new(conf, options[:ignore])
       else
-        config = Pups::Config.load_file(input_file)
+        config = Pups::Config.load_file(input_file, options[:ignore])
       end
 
       config.run
