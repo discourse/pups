@@ -3,7 +3,6 @@
 module Pups
   class Config
     attr_reader :config, :params
-    attr_accessor :ignored
 
     def self.load_file(config_file, ignored = nil)
       Config.new(YAML.load_file(config_file), ignored)
