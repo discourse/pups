@@ -20,6 +20,15 @@ Or install it yourself as:
 
 pups is a small library that allows you to automate the process of creating Unix images.
 
+```
+Usage: pups [FILE|--stdin]
+        --stdin                      Read input from stdin.
+        --quiet                      Don't print any logs.
+    -h, --help
+```
+
+pups requires input either via a stdin stream or a filename. The entire input is parsed prior to any templating or command execution.
+
 Example:
 
 ```
