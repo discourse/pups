@@ -4,11 +4,16 @@ require 'optparse'
 
 module Pups
   class Cli
+    attr_accessor :ignored
+
     def self.opts
       OptionParser.new do |opts|
         opts.banner = 'Usage: pups [FILE|--stdin]'
         opts.on('--stdin', 'Read input from stdin.')
         opts.on('--quiet', "Don't print any logs.")
+        opts.on('--ignore <element(s)>', Array, "Ignore these template configuration elements, multiple elements can be provided (comma-delimited).") do |ignore_elements|
+          @ignored = ignore_elements
+        end
         opts.on('-h', '--help') do
           puts opts
           exit
@@ -50,9 +55,9 @@ module Pups
           end
         end
 
-        config = Pups::Config.new(conf)
+        config = Pups::Config.new(conf, @ignored)
       else
-        config = Pups::Config.load_file(input_file)
+        config = Pups::Config.load_file(input_file, @ignored)
       end
 
       config.run

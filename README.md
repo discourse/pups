@@ -21,9 +21,12 @@ Or install it yourself as:
 pups is a small library that allows you to automate the process of creating Unix images.
 
 ```
-Usage: pups [FILE|--stdin]
+Usage: pups [options] [FILE|--stdin]
         --stdin                      Read input from stdin.
         --quiet                      Don't print any logs.
+        --ignore <elements>          Ignore specific configuration elements, multiple elements can be provided (comma-delimited).
+                                     Useful if you want to skip over config in a pups execution.
+                                     e.g. `--ignore env,params`.
     -h, --help
 ```
 
