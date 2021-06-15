@@ -10,6 +10,7 @@ module Pups
         opts.on('--stdin', 'Read input from stdin.')
         opts.on('--quiet', "Don't print any logs.")
         opts.on('--ignore <element(s)>', Array, "Ignore these template configuration elements, multiple elements can be provided (comma-delimited).")
+        opts.on('--gen-docker-run-args', 'Output arguments from the pups configuration for input into a docker run command. All other pups config is ignored.')
         opts.on('-h', '--help') do
           puts opts
           exit
@@ -54,6 +55,11 @@ module Pups
         config = Pups::Config.new(conf, options[:ignore])
       else
         config = Pups::Config.load_file(input_file, options[:ignore])
+      end
+
+      if options[:"gen-docker-run-args"]
+        print config.generate_docker_run_arguments
+        return
       end
 
       config.run
