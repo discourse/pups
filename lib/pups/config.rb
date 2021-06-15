@@ -4,6 +4,31 @@ module Pups
   class Config
     attr_reader :config, :params
 
+    def initialize(config, ignored = nil)
+      @config = config
+
+      # remove any ignored config elements prior to any more processing
+      ignored&.each { |e| @config.delete(e) }
+
+      # set some defaults to prevent checks in various functions
+      ['env_template', 'env', 'labels', 'params'].each { |key| @config[key] = {} unless @config.has_key?(key) }
+
+      # Order here is important.
+      Pups::Config.combine_template_and_process_env(@config, ENV)
+      Pups::Config.prepare_env_template_vars(@config['env_template'], ENV)
+
+      # Templating is supported in env and label variables.
+      Pups::Config.transform_config_with_templated_vars(@config['env_template'], ENV)
+      Pups::Config.transform_config_with_templated_vars(@config['env_template'], @config['env'])
+      Pups::Config.transform_config_with_templated_vars(@config['env_template'], @config['labels'])
+
+      @params = @config["params"]
+      ENV.each do |k, v|
+        @params["$ENV_#{k}"] = v
+      end
+      inject_hooks
+    end
+
     def self.load_file(config_file, ignored = nil)
       Config.new(YAML.load_file(config_file), ignored)
     rescue Exception
@@ -17,45 +42,32 @@ module Pups
       Config.new(YAML.safe_load(config), ignored)
     end
 
-    def initialize(config, ignored = nil)
-      @config = config
-      validate!(@config)
-
-      # remove any ignored config elements prior to any more processing
-      ignored&.each { |e| @config.delete(e) }
-
-      # Processing of the environment variables occurs first. This merges environment
-      # from the yaml templates and process ENV, and templates any variables found
-      # either via yaml or ENV.
-      @config['env']&.each { |k, v| ENV[k] = v.to_s }
-      @config['env_template'] ||= {}
-
-      # Merging env_template variables from ENV and templates.
-      ENV.each do |k, v|
+    def self.prepare_env_template_vars(env_template, env)
+      # Merge env_template variables from env and templates.
+      env.each do |k, v|
         if k.include?('env_template_')
           key = k.gsub('env_template_', '')
-          @config['env_template'][key] = v
+          env_template[key] = v.to_s
         end
       end
-
-      # Now transform any templated environment variables prior to copying to params.
-      # This has no effect if no env_template was provided.
-      @config['env_template']&.each do |k, v|
-        ENV.each do |key, val|
-          ENV[key] = val.gsub("{{#{k}}}", v.to_s) if val.include?("{{#{k}}}")
-        end
-      end
-
-      @params = @config['params']
-      @params ||= {}
-      ENV.each do |k, v|
-        @params["$ENV_#{k}"] = v
-      end
-      inject_hooks
     end
 
-    def validate!(conf)
-      # raise proper errors if nodes are missing etc
+    def self.transform_config_with_templated_vars(env_template, to_transform)
+      # Transform any templated variables prior to copying to params.
+      # This has no effect if no env_template was provided.
+      env_template.each do |k, v|
+        to_transform.each do |key, val|
+          if val.to_s.include?("{{#{k}}}")
+            to_transform[key] = val.gsub("{{#{k}}}", v.to_s)
+          end
+        end
+      end
+    end
+
+    def self.combine_template_and_process_env(config, env)
+      # Merge all template env variables and process env variables, so that env
+      # variables can be provided both by configuration and runtime variables.
+      config["env"].each { |k, v| env[k] = v.to_s }
     end
 
     def inject_hooks
@@ -96,6 +108,16 @@ module Pups
           Pups.log.info "Skipped missing #{full} hook"
         end
       end
+    end
+
+    def generate_docker_run_arguments
+      output = []
+      output << Pups::Docker.generate_env_arguments(config['env'])
+      output << Pups::Docker.generate_link_arguments(config['links'])
+      output << Pups::Docker.generate_expose_arguments(config['expose'])
+      output << Pups::Docker.generate_volume_arguments(config['volumes'])
+      output << Pups::Docker.generate_label_arguments(config['labels'])
+      output.sort!.join(" ").strip
     end
 
     def run

@@ -27,6 +27,7 @@ Usage: pups [options] [FILE|--stdin]
         --ignore <elements>          Ignore specific configuration elements, multiple elements can be provided (comma-delimited).
                                      Useful if you want to skip over config in a pups execution.
                                      e.g. `--ignore env,params`.
+        --gen-docker-run-args        Output arguments from the pups configuration for input into a docker run command. All other pups config is ignored.
     -h, --help
 ```
 
@@ -46,6 +47,14 @@ run:
 Running: `pups somefile.yaml` will execute the shell script resulting in a file called "hello" with the contents "hello world".
 
 ### Features
+
+#### Docker run argument generation
+
+The `--gen-docker-run-args` argument is used to make pups output arguments be in the format of `docker run <arguments output>`. Specifically, pups
+will take any `env`, `volume`, `labels`, `links`, and `expose` configuration, and coerce that into the format expected by `docker run`. This can be useful
+when pups is being used to configure an image (e.g. by executing a series of commands) that is then going to be run as a container. That way, the runtime and image
+configuration can be specified within the same yaml files.
+
 
 #### Environment Variables
 
