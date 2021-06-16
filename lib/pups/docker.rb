@@ -55,11 +55,7 @@ class Pups::Docker
       # special characters than any of the other config variables on a Linux system:
       # - the value side of an environment variable
       # - the value side of a label.
-      if str.to_s.include?(" ")
-        "\"#{Shellwords.escape(str)}\""
-      else
-        Shellwords.escape(str)
-      end
+      Shellwords.escape(str)
     end
 
     def normalize_output(output)

@@ -46,7 +46,7 @@ module Pups
       config = Config.load_config(yaml)
       Config.transform_config_with_templated_vars(config.config['env_template'], config.config["env"])
       args = Docker.generate_env_arguments(config.config["env"])
-      assert_equal("--env password=\"#{Shellwords.escape('eggs*`echo`@e$t| = >>$()&list;#')}\"", args)
+      assert_equal("--env password=#{Shellwords.escape('eggs*`echo`@e$t| = >>$()&list;#')}", args)
     end
 
     def test_gen_env_arguments_quoted_with_a_space
@@ -58,7 +58,7 @@ module Pups
       config = Config.load_config(yaml)
       Config.transform_config_with_templated_vars(config.config['env_template'], config.config["env"])
       args = Docker.generate_env_arguments(config.config["env"])
-      assert_equal('--env a_variable="here\ is\ a\ sentence"', args)
+      assert_equal('--env a_variable=here\ is\ a\ sentence', args)
     end
 
     def test_gen_env_arguments_newline
@@ -77,7 +77,7 @@ this password is
       config = Config.load_config(yaml)
       Config.transform_config_with_templated_vars(config.config['env_template'], config.config["env"])
       args = Docker.generate_env_arguments(config.config["env"])
-      assert_equal('--env password="this\ password\ is\ a\ weird\ one\ "', args)
+      assert_equal('--env password=this\ password\ is\ a\ weird\ one\ ', args)
     end
 
     def test_gen_expose_arguments
