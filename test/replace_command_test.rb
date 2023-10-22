@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
-require 'test_helper'
-require 'tempfile'
+require "test_helper"
+require "tempfile"
 
 module Pups
-  class ReplaceCommandTest < MiniTest::Test
+  class ReplaceCommandTest < ::Minitest::Test
     def test_simple
       command = ReplaceCommand.new({})
-      command.text = 'hello world'
+      command.text = "hello world"
       command.from = /he[^o]+o/
-      command.to = 'world'
+      command.to = "world"
 
-      assert_equal('world world', command.replaced_text)
+      assert_equal("world world", command.replaced_text)
     end
 
     def test_reverse
@@ -21,20 +21,23 @@ module Pups
         1 one thousand 1
       SCR
 
-      f = Tempfile.new('test')
+      f = Tempfile.new("test")
       f.write source
       f.close
 
       hash = {
-        'filename' => f.path,
-        'from' => '/one t.*d/',
-        'to' => 'hello world',
-        'direction' => 'reverse'
+        "filename" => f.path,
+        "from" => "/one t.*d/",
+        "to" => "hello world",
+        "direction" => "reverse"
       }
 
       command = ReplaceCommand.from_hash(hash, {})
 
-      assert_equal("1 one thousand 1\n1 one thousand 1\n1 hello world 1\n", command.replaced_text)
+      assert_equal(
+        "1 one thousand 1\n1 one thousand 1\n1 hello world 1\n",
+        command.replaced_text
+      )
     ensure
       f.unlink
     end
@@ -46,15 +49,15 @@ module Pups
         one
       SCR
 
-      f = Tempfile.new('test')
+      f = Tempfile.new("test")
       f.write source
       f.close
 
       hash = {
-        'filename' => f.path,
-        'from' => '/one/',
-        'to' => 'two',
-        'global' => 'true'
+        "filename" => f.path,
+        "from" => "/one/",
+        "to" => "two",
+        "global" => "true"
       }
 
       command = ReplaceCommand.from_hash(hash, {})
@@ -65,20 +68,16 @@ module Pups
     end
 
     def test_replace_with_env
-      source = '123'
+      source = "123"
 
-      f = Tempfile.new('test')
+      f = Tempfile.new("test")
       f.write source
       f.close
 
-      hash = {
-        'filename' => f.path,
-        'from' => '123',
-        'to' => 'hello $hellos'
-      }
+      hash = { "filename" => f.path, "from" => "123", "to" => "hello $hellos" }
 
-      command = ReplaceCommand.from_hash(hash, { 'hello' => 'world' })
-      assert_equal('hello worlds', command.replaced_text)
+      command = ReplaceCommand.from_hash(hash, { "hello" => "world" })
+      assert_equal("hello worlds", command.replaced_text)
     ensure
       f.unlink
     end
@@ -90,19 +89,19 @@ module Pups
         }
       SCR
 
-      f = Tempfile.new('test')
+      f = Tempfile.new("test")
       f.write source
       f.close
 
       hash = {
-        'filename' => f.path,
-        'from' => "/this[^\}]+\}/m",
-        'to' => 'hello world'
+        "filename" => f.path,
+        "from" => "/this[^\}]+\}/m",
+        "to" => "hello world"
       }
 
       command = ReplaceCommand.from_hash(hash, {})
 
-      assert_equal('hello world', command.replaced_text.strip)
+      assert_equal("hello world", command.replaced_text.strip)
     ensure
       f.unlink
     end
