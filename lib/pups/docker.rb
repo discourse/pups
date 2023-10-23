@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require 'shellwords'
+require "shellwords"
 
 class Pups::Docker
   class << self
@@ -16,7 +16,7 @@ class Pups::Docker
     def generate_link_arguments(config)
       output = []
       config&.each do |c|
-        output << "--link #{c['link']['name']}:#{c['link']['alias']}"
+        output << "--link #{c["link"]["name"]}:#{c["link"]["alias"]}"
       end
       normalize_output(output)
     end
@@ -36,7 +36,7 @@ class Pups::Docker
     def generate_volume_arguments(config)
       output = []
       config&.each do |c|
-        output << "--volume #{c['volume']['host']}:#{c['volume']['guest']}"
+        output << "--volume #{c["volume"]["host"]}:#{c["volume"]["guest"]}"
       end
       normalize_output(output)
     end
@@ -50,6 +50,7 @@ class Pups::Docker
     end
 
     private
+
     def escape_user_string_literal(str)
       # We need to escape the following strings as they are more likely to contain
       # special characters than any of the other config variables on a Linux system:
@@ -59,11 +60,7 @@ class Pups::Docker
     end
 
     def normalize_output(output)
-      if output.empty?
-        ""
-      else
-        output.join(" ")
-      end
+      output.empty? ? "" : output.join(" ")
     end
   end
 end

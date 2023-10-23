@@ -6,18 +6,18 @@ module Pups
 
     def self.from_hash(hash, params)
       replacer = new(params)
-      replacer.from = guess_replace_type(hash['from'])
-      replacer.to = guess_replace_type(hash['to'])
-      replacer.text = File.read(hash['filename'])
-      replacer.filename = hash['filename']
-      replacer.direction = hash['direction'].to_sym if hash['direction']
-      replacer.global = hash['global'].to_s == 'true'
+      replacer.from = guess_replace_type(hash["from"])
+      replacer.to = guess_replace_type(hash["to"])
+      replacer.text = File.read(hash["filename"])
+      replacer.filename = hash["filename"]
+      replacer.direction = hash["direction"].to_sym if hash["direction"]
+      replacer.global = hash["global"].to_s == "true"
       replacer
     end
 
     def self.guess_replace_type(item)
       # evaling to get all the regex flags easily
-      item[0] == '/' ? eval(item) : item
+      item[0] == "/" ? eval(item) : item # rubocop:disable Security/Eval
     end
 
     def initialize(params)
@@ -39,7 +39,7 @@ module Pups
 
     def run
       Pups.log.info("Replacing #{from} with #{to} in #{filename}")
-      File.open(filename, 'w') { |f| f.write replaced_text }
+      File.open(filename, "w") { |f| f.write replaced_text }
     end
   end
 end

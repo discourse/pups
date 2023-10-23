@@ -4,8 +4,10 @@ module Pups
   class Command
     def self.run(command, params)
       case command
-      when String then from_str(command, params).run
-      when Hash then from_hash(command, params).run
+      when String
+        from_str(command, params).run
+      when Hash
+        from_hash(command, params).run
       end
     end
 

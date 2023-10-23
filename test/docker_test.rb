@@ -1,10 +1,10 @@
 # frozen_string_literal: true
-require 'test_helper'
-require 'tempfile'
-require 'shellwords'
+require "test_helper"
+require "tempfile"
+require "shellwords"
 
 module Pups
-  class DockerTest < MiniTest::Test
+  class DockerTest < ::Minitest::Test
     def test_gen_env_arguments
       yaml = <<~YAML
       env:
@@ -16,7 +16,10 @@ module Pups
       YAML
 
       config = Config.load_config(yaml)
-      Config.transform_config_with_templated_vars(config.config['env_template'], config.config["env"])
+      Config.transform_config_with_templated_vars(
+        config.config["env_template"],
+        config.config["env"]
+      )
       args = Docker.generate_env_arguments(config.config["env"])
       assert_equal("--env foo=1 --env bar=2 --env baz=hello_eggs", args)
     end
@@ -30,7 +33,10 @@ module Pups
       YAML
 
       config = Config.load_config(yaml)
-      Config.transform_config_with_templated_vars(config.config['env_template'], config.config["env"])
+      Config.transform_config_with_templated_vars(
+        config.config["env_template"],
+        config.config["env"]
+      )
       args = Docker.generate_env_arguments(config.config["env"])
       assert_equal("--env foo=1 --env bar=2", args)
     end
@@ -44,9 +50,15 @@ module Pups
       YAML
 
       config = Config.load_config(yaml)
-      Config.transform_config_with_templated_vars(config.config['env_template'], config.config["env"])
+      Config.transform_config_with_templated_vars(
+        config.config["env_template"],
+        config.config["env"]
+      )
       args = Docker.generate_env_arguments(config.config["env"])
-      assert_equal("--env password=#{Shellwords.escape('eggs*`echo`@e$t| = >>$()&list;#')}", args)
+      assert_equal(
+        "--env password=#{Shellwords.escape("eggs*`echo`@e$t| = >>$()&list;#")}",
+        args
+      )
     end
 
     def test_gen_env_arguments_quoted_with_a_space
@@ -56,7 +68,10 @@ module Pups
       YAML
 
       config = Config.load_config(yaml)
-      Config.transform_config_with_templated_vars(config.config['env_template'], config.config["env"])
+      Config.transform_config_with_templated_vars(
+        config.config["env_template"],
+        config.config["env"]
+      )
       args = Docker.generate_env_arguments(config.config["env"])
       assert_equal('--env a_variable=here\ is\ a\ sentence', args)
     end
@@ -75,7 +90,10 @@ this password is
       YAML
 
       config = Config.load_config(yaml)
-      Config.transform_config_with_templated_vars(config.config['env_template'], config.config["env"])
+      Config.transform_config_with_templated_vars(
+        config.config["env_template"],
+        config.config["env"]
+      )
       args = Docker.generate_env_arguments(config.config["env"])
       assert_equal('--env password=this\ password\ is\ a\ weird\ one\ ', args)
     end
@@ -90,7 +108,10 @@ this password is
 
       config = Config.load_config(yaml)
       args = Docker.generate_expose_arguments(config.config["expose"])
-      assert_equal("--publish 2222:22 --publish 127.0.0.1:20080:80 --expose 5555", args)
+      assert_equal(
+        "--publish 2222:22 --publish 127.0.0.1:20080:80 --expose 5555",
+        args
+      )
     end
 
     def test_gen_volume_arguments
@@ -106,7 +127,10 @@ this password is
 
       config = Config.load_config(yaml)
       args = Docker.generate_volume_arguments(config.config["volumes"])
-      assert_equal("--volume /var/discourse/shared:/shared --volume /bar:/baz", args)
+      assert_equal(
+        "--volume /var/discourse/shared:/shared --volume /bar:/baz",
+        args
+      )
     end
 
     def test_gen_link_arguments
@@ -135,9 +159,15 @@ this password is
       YAML
 
       config = Config.load_config(yaml)
-      Config.transform_config_with_templated_vars(config.config['env_template'], config.config["labels"])
+      Config.transform_config_with_templated_vars(
+        config.config["env_template"],
+        config.config["labels"]
+      )
       args = Docker.generate_label_arguments(config.config["labels"])
-      assert_equal("--label monitor=true --label app_name=my_app_discourse", args)
+      assert_equal(
+        "--label monitor=true --label app_name=my_app_discourse",
+        args
+      )
     end
 
     def test_gen_label_arguments_escaped
@@ -149,9 +179,15 @@ this password is
       YAML
 
       config = Config.load_config(yaml)
-      Config.transform_config_with_templated_vars(config.config['env_template'], config.config["labels"])
+      Config.transform_config_with_templated_vars(
+        config.config["env_template"],
+        config.config["labels"]
+      )
       args = Docker.generate_label_arguments(config.config["labels"])
-      assert_equal("--label app_name=#{Shellwords.escape("my_app's_di$course")}", args)
+      assert_equal(
+        "--label app_name=#{Shellwords.escape("my_app's_di$course")}",
+        args
+      )
     end
   end
 end

@@ -25,6 +25,8 @@ Usage: pups [options] [FILE|--stdin]
         --stdin                      Read input from stdin.
         --quiet                      Don't print any logs.
         --ignore <elements>          Ignore specific configuration elements, multiple elements can be provided (comma-delimited).
+        --tags <elements>            Only run tagged commands.
+        --skip-tags <elements>       Run all but listed tagged commands.
                                      Useful if you want to skip over config in a pups execution.
                                      e.g. `--ignore env,params`.
         --gen-docker-run-args        Output arguments from the pups configuration for input into a docker run command. All other pups config is ignored.
@@ -47,6 +49,32 @@ run:
 Running: `pups somefile.yaml` will execute the shell script resulting in a file called "hello" with the contents "hello world".
 
 ### Features
+
+#### Filtering run commands by tags
+
+The `--tags` and `skip-tags` argument allows pups to target a subset of commands listed in the somefile.yaml. To use this, you may tag your commands in the rublock. `--tags` will only run commands when commands have a matching tag. `skip-tags` will skip when commands have a matching tag.
+
+Note, hooks from tagged commands will be present or absent depending on if the tag is filtered out or not as well. A command filtered out by targeting tag will also filter out the command's `before_` and `after_` hooks.
+
+Example:
+
+```
+# somefile.yaml
+
+run:
+  - exec:
+      cmd: /bin/bash -c 'echo hello >> hello'
+      tag: sometag
+  - exec:
+      cmd: /bin/bash -c 'echo hi >> hello'
+      tag: anothertag
+  - exec:
+      cmd: /bin/bash -c 'echo goodbye >> hello'
+      tag: thirdtag
+```
+Running: `pups --tags="sometag,anothertag" somefile.yaml` will not run the echo goodbye statement.
+
+Running: `pups --skip-tags="sometag,anothertag" somefile.yaml` will ONLY run the echo goodbye statement.
 
 #### Docker run argument generation
 

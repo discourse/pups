@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-require 'test_helper'
-require 'tempfile'
-require 'stringio'
+require "test_helper"
+require "tempfile"
+require "stringio"
 
 module Pups
-  class CliTest < MiniTest::Test
+  class CliTest < ::Minitest::Test
     def test_cli_option_parsing_stdin
-      options = Cli.parse_args(['--stdin'])
+      options = Cli.parse_args(["--stdin"])
       assert_equal(true, options[:stdin])
     end
 
@@ -18,11 +18,11 @@ module Pups
 
     def test_cli_read_config_from_file
       # for testing output
-      f = Tempfile.new('test_output')
+      f = Tempfile.new("test_output")
       f.close
 
       # for testing input
-      cf = Tempfile.new('test_config')
+      cf = Tempfile.new("test_config")
       cf.puts <<~YAML
       params:
         run: #{f.path}
@@ -32,16 +32,16 @@ module Pups
       cf.close
 
       Cli.run([cf.path])
-      assert_equal('hello world', File.read(f.path).strip)
+      assert_equal("hello world", File.read(f.path).strip)
     end
 
     def test_cli_ignore_config_element
       # for testing output
-      f = Tempfile.new('test_output')
+      f = Tempfile.new("test_output")
       f.close
 
       # for testing input
-      cf = Tempfile.new('test_config')
+      cf = Tempfile.new("test_config")
       cf.puts <<~YAML
         env:
           MY_IGNORED_VAR: a_word
@@ -53,7 +53,7 @@ module Pups
       cf.close
 
       Cli.run(["--ignore", "env,params", cf.path])
-      assert_equal('repeating and also', File.read(f.path).strip)
+      assert_equal("repeating and also", File.read(f.path).strip)
     end
 
     def test_cli_gen_docker_run_args_ignores_other_config
@@ -111,7 +111,58 @@ module Pups
       expected.sort!
 
       assert_equal("", File.read(f.path).strip)
-      assert_output(expected.join(" ")) { Cli.run(["--gen-docker-run-args", cf.path]) }
+      assert_output(expected.join(" ")) do
+        Cli.run(["--gen-docker-run-args", cf.path])
+      end
+    end
+
+    def test_cli_tags
+      # for testing output
+      f = Tempfile.new("test_output")
+      f.close
+
+      # for testing input
+      cf = Tempfile.new("test_config")
+      cf.puts <<~YAML
+        run:
+          - exec:
+              tag: '1'
+              cmd: echo 1 >> #{f.path}
+          - exec:
+              tag: '2'
+              cmd: echo 2 >> #{f.path}
+          - exec:
+              tag: '3'
+              cmd: echo 3 >> #{f.path}
+      YAML
+      cf.close
+
+      Cli.run(["--tags", "1,3", cf.path])
+      assert_equal("1\n3", File.read(f.path).strip)
+    end
+    def test_cli_skip_tags
+      # for testing output
+      f = Tempfile.new("test_output")
+      f.close
+
+      # for testing input
+      cf = Tempfile.new("test_config")
+      cf.puts <<~YAML
+        run:
+          - exec:
+              tag: '1'
+              cmd: echo 1 >> #{f.path}
+          - exec:
+              tag: '2'
+              cmd: echo 2 >> #{f.path}
+          - exec:
+              tag: '3'
+              cmd: echo 3 >> #{f.path}
+      YAML
+      cf.close
+
+      Cli.run(["--skip-tags", "1,3", cf.path])
+      assert_equal("2", File.read(f.path).strip)
     end
   end
 end

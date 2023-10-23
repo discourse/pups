@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'timeout'
-require 'English'
+require "timeout"
+require "English"
 
 module Pups
   class ExecCommand < Pups::Command
@@ -9,12 +9,14 @@ module Pups
     attr_accessor :background, :raise_on_fail, :stdin, :stop_signal
 
     def self.terminate_async(opts = {})
-      return unless defined? @@asyncs
+      return unless defined?(@@asyncs)
 
-      Pups.log.info('Terminating async processes')
+      Pups.log.info("Terminating async processes")
 
       @@asyncs.each do |async|
-        Pups.log.info("Sending #{async[:stop_signal]} to #{async[:command]} pid: #{async[:pid]}")
+        Pups.log.info(
+          "Sending #{async[:stop_signal]} to #{async[:command]} pid: #{async[:pid]}"
+        )
         begin
           Process.kill(async[:stop_signal], async[:pid])
         rescue StandardError
@@ -22,37 +24,43 @@ module Pups
         end
       end
 
-      @@asyncs.map do |async|
-        Thread.new do
-          Timeout.timeout(opts[:wait] || 10) do
-            Process.wait(async[:pid])
-          rescue StandardError
-            nil
-          end
-        rescue Timeout::Error
-          Pups.log.info("#{async[:command]} pid:#{async[:pid]} did not terminate cleanly, forcing termination!")
-          begin
-            Process.kill('KILL', async[:pid])
-            Process.wait(async[:pid])
-          rescue Errno::ESRCH
-          rescue Errno::ECHILD
+      @@asyncs
+        .map do |async|
+          Thread.new do
+            Timeout.timeout(opts[:wait] || 10) do
+              Process.wait(async[:pid])
+            rescue StandardError
+              nil
+            end
+          rescue Timeout::Error
+            Pups.log.info(
+              "#{async[:command]} pid:#{async[:pid]} did not terminate cleanly, forcing termination!"
+            )
+            begin
+              Process.kill("KILL", async[:pid])
+              Process.wait(async[:pid])
+            rescue Errno::ESRCH
+            rescue Errno::ECHILD
+            end
           end
         end
-      end.each(&:join)
+        .each(&:join)
     end
 
     def self.from_hash(hash, params)
-      cmd = new(params, hash['cd'])
+      cmd = new(params, hash["cd"])
 
-      case c = hash['cmd']
-      when String then cmd.add(c)
-      when Array then c.each { |i| cmd.add(i) }
+      case c = hash["cmd"]
+      when String
+        cmd.add(c)
+      when Array
+        c.each { |i| cmd.add(i) }
       end
 
-      cmd.background = hash['background']
-      cmd.stop_signal = hash['stop_signal'] || 'TERM'
-      cmd.raise_on_fail = hash['raise_on_fail'] if hash.key? 'raise_on_fail'
-      cmd.stdin = interpolate_params(hash['stdin'], params)
+      cmd.background = hash["background"]
+      cmd.stop_signal = hash["stop_signal"] || "TERM"
+      cmd.raise_on_fail = hash["raise_on_fail"] if hash.key? "raise_on_fail"
+      cmd.stdin = interpolate_params(hash["stdin"], params)
 
       cmd
     end
@@ -88,7 +96,11 @@ module Pups
     def spawn(command)
       if background
         pid = Process.spawn(command)
-        (@@asyncs ||= []) << { pid: pid, command: command, stop_signal: (stop_signal || 'TERM') }
+        (@@asyncs ||= []) << {
+          pid: pid,
+          command: command,
+          stop_signal: (stop_signal || "TERM")
+        }
         Thread.new do
           begin
             Process.wait(pid)
@@ -100,7 +112,7 @@ module Pups
         return pid
       end
 
-      IO.popen(command, 'w+') do |f|
+      IO.popen(command, "w+") do |f|
         if stdin
           # need a way to get stdout without blocking
           Pups.log.info(stdin)
@@ -112,7 +124,10 @@ module Pups
       end
 
       unless $CHILD_STATUS == 0
-        err = Pups::ExecError.new("#{command} failed with return #{$CHILD_STATUS.inspect}")
+        err =
+          Pups::ExecError.new(
+            "#{command} failed with return #{$CHILD_STATUS.inspect}"
+          )
         err.exit_code = $CHILD_STATUS.exitstatus
         raise err
       end
