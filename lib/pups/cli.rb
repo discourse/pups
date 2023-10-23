@@ -69,7 +69,7 @@ module Pups
             conf,
             options[:ignore],
             tags: options[:tags],
-            skip_tags: option[:"skip-tags"]
+            skip_tags: options[:"skip-tags"]
           )
       else
         config =
