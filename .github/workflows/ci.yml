@@ -16,7 +16,7 @@ jobs:
       fail-fast: true
       matrix:
         os: [ubuntu-latest]
-        ruby: ["2.7"]
+        ruby: ["3.2"]
 
     steps:
       - uses: actions/checkout@v2
