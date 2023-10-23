@@ -1,12 +1,30 @@
-name: Tests
+name: CI
 
 on:
   push:
     branches:
-      - master
+      - main
   pull_request: {}
 
 jobs:
+  lint:
+    name: "pups lint"
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ubuntu-latest]
+        ruby: ["3.2"]
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+      - run: bundle exec rubocop
   test:
     name: "pups tests"
     runs-on: ${{ matrix.os }}
@@ -19,7 +37,7 @@ jobs:
         ruby: ["3.2"]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
@@ -27,3 +45,18 @@ jobs:
       - name: Run minitest
         run: |
           rake test
+
+  publish:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [test]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Release Gem
+        uses: discourse/publish-rubygems-action@v2
+        env:
+          RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
+          GIT_EMAIL: team@discourse.org
+          GIT_NAME: discoursebot
