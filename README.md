@@ -52,7 +52,7 @@ Running: `pups somefile.yaml` will execute the shell script resulting in a file 
 
 #### Filtering run commands by tags
 
-The `--tags` and `--skip-tags` argument allows pups to target a subset of commands listed in the somefile.yaml. To use this, you may tag your commands in the rublock. `--tags` will only run commands when commands have a matching tag. `--skip-tags` will skip when commands have a matching tag.
+The `--tags` and `--skip-tags` argument allows pups to target a subset of commands listed in the somefile.yaml. To use this, you may tag your commands in the runblock. `--tags` will only run commands when commands have a matching tag. `--skip-tags` will skip when commands have a matching tag.
 
 Note, hooks from tagged commands will be present or absent depending on if the tag is filtered out or not as well. A command filtered out by targeting tag will also filter out the command's `before_` and `after_` hooks.
 
