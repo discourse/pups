@@ -15,8 +15,7 @@ module Pups
       # remove any ignored config elements prior to any more processing
       ignored&.each { |e| @config.delete(e) }
 
-      filter_tags(tags)
-      filter_tags(skip_tags, true)
+      filter_tags(include_tags: tags, exclude_tags: skip_tags)
 
       # set some defaults to prevent checks in various functions
       %w[env_template env labels params].each do |key|
@@ -109,19 +108,32 @@ module Pups
 
     # Filter run commands by tag: by default, keep all commands that contain tags.
     # If skip_tags argument is true, keep all commands that DO NOT contain tags.
-    def filter_tags(tags, skip_tags = false)
-      return unless tags
-      run = @config["run"]
-
-      @config["run"] = run.select do |row|
-        keep = false
-        command = row.first
-        if command[1].is_a?(Hash)
-          tag = command[1]["tag"]
-          keep = tags.include?(tag)
+    def filter_tags(
+      include_tags: include_tags = nil,
+      exclude_tags: exclude_tags = nil
+    )
+      if include_tags
+        @config["run"] = @config["run"].select do |row|
+          keep = false
+          command = row.first
+          if command[1].is_a?(Hash)
+            tag = command[1]["tag"]
+            keep = include_tags.include?(tag)
+          end
+          keep
         end
-        keep = !keep if skip_tags #skip_tags keeps everything NOT tagged
-        keep
+      end
+
+      if exclude_tags
+        @config["run"] = @config["run"].select do |row|
+          keep = true
+          command = row.first
+          if command[1].is_a?(Hash)
+            tag = command[1]["tag"]
+            keep = !exclude_tags.include?(tag)
+          end
+          keep
+        end
       end
     end
 
