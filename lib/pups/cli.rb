@@ -18,8 +18,12 @@ module Pups
           "--gen-docker-run-args",
           "Output arguments from the pups configuration for input into a docker run command. All other pups config is ignored."
         )
-        opts.on("--tags <tag(s)>", Array, "Filter tagged commands.")
-        opts.on("--skip-tags <tag(s)>", Array, "Skip tagged commands.")
+        opts.on("--tags <tag(s)>", Array, "Only run tagged commands.")
+        opts.on(
+          "--skip-tags <tag(s)>",
+          Array,
+          "Run all but listed tagged commands."
+        )
         opts.on("-h", "--help") do
           puts opts
           exit

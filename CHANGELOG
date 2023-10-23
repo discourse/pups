@@ -1,3 +1,7 @@
+1.2.0 - 10-22-2023
+
+- Add --tags and --skip-tags options
+
 1.0.3 - 09-04-2021
 
 - Started changelog - release to rubygems
