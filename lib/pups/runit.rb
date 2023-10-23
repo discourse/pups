@@ -11,9 +11,7 @@ module Pups
     def setup
       `mkdir -p /etc/service/#{name}`
       run = "/etc/service/#{name}/run"
-      File.open(run, 'w') do |f|
-        f.write(run_script)
-      end
+      File.open(run, "w") { |f| f.write(run_script) }
       `chmod +x #{run}`
     end
 
@@ -31,9 +29,7 @@ exec 2>&1
     end
 
     def env_script
-      @env&.map do |k, v|
-        "export #{k}=#{v}"
-      end&.join("\n")
+      @env&.map { |k, v| "export #{k}=#{v}" }&.join("\n")
     end
   end
 end

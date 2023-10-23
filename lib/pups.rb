@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
-require 'logger'
-require 'yaml'
+require "logger"
+require "yaml"
 
-require 'pups/version'
-require 'pups/config'
-require 'pups/command'
-require 'pups/exec_command'
-require 'pups/merge_command'
-require 'pups/replace_command'
-require 'pups/file_command'
-require 'pups/docker'
-require 'pups/runit'
+require "pups/version"
+require "pups/config"
+require "pups/command"
+require "pups/exec_command"
+require "pups/merge_command"
+require "pups/replace_command"
+require "pups/file_command"
+require "pups/docker"
+require "pups/runit"
 
 module Pups
   class ExecError < RuntimeError
@@ -28,9 +28,7 @@ module Pups
   end
 
   def self.silence
-    if @logger
-      @logger.close
-    end
+    @logger.close if @logger
 
     @logger = Logger.new(File.open(File::NULL, "w"))
   end

@@ -6,10 +6,10 @@ module Pups
 
     def self.from_hash(hash, params)
       command = new
-      command.path = hash['path']
-      command.contents = hash['contents']
-      command.chmod = hash['chmod']
-      command.chown = hash['chown']
+      command.path = hash["path"]
+      command.contents = hash["contents"]
+      command.chmod = hash["chmod"]
+      command.chown = hash["chown"]
       command.params = params
 
       command
@@ -26,9 +26,7 @@ module Pups
       path = interpolate_params(@path)
 
       `mkdir -p #{File.dirname(path)}`
-      File.open(path, 'w') do |f|
-        f.write(interpolate_params(contents))
-      end
+      File.open(path, "w") { |f| f.write(interpolate_params(contents)) }
       `chmod #{@chmod} #{path}` if @chmod
       `chown #{@chown} #{path}` if @chown
       Pups.log.info("File > #{path}  chmod: #{@chmod}  chown: #{@chown}")
