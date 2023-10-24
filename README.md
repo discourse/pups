@@ -25,10 +25,10 @@ Usage: pups [options] [FILE|--stdin]
         --stdin                      Read input from stdin.
         --quiet                      Don't print any logs.
         --ignore <elements>          Ignore specific configuration elements, multiple elements can be provided (comma-delimited).
-        --tags <elements>            Only run tagged commands.
-        --skip-tags <elements>       Run all but listed tagged commands.
                                      Useful if you want to skip over config in a pups execution.
                                      e.g. `--ignore env,params`.
+        --tags <elements>            Only run tagged commands.
+        --skip-tags <elements>       Run all but listed tagged commands.
         --gen-docker-run-args        Output arguments from the pups configuration for input into a docker run command. All other pups config is ignored.
     -h, --help
 ```
