@@ -14,9 +14,7 @@ module Pups
       Pups.log.info("Terminating async processes")
 
       @@asyncs.each do |async|
-        Pups.log.info(
-          "Sending #{async[:stop_signal]} to #{async[:command]} pid: #{async[:pid]}"
-        )
+        Pups.log.info("Sending #{async[:stop_signal]} to #{async[:command]} pid: #{async[:pid]}")
         begin
           Process.kill(async[:stop_signal], async[:pid])
         rescue StandardError
@@ -34,7 +32,7 @@ module Pups
             end
           rescue Timeout::Error
             Pups.log.info(
-              "#{async[:command]} pid:#{async[:pid]} did not terminate cleanly, forcing termination!"
+              "#{async[:command]} pid:#{async[:pid]} did not terminate cleanly, forcing termination!",
             )
             begin
               Process.kill("KILL", async[:pid])
@@ -85,7 +83,9 @@ module Pups
     def run
       commands.each do |command|
         Pups.log.info("> #{command}")
+        Pups.log.info("SPAWNING #{background}: #{command}")
         pid = spawn(command)
+        Pups.log.info("RESULTS: #{command} #{pid}")
         Pups.log.info(@result.readlines.join("\n")) if @result
         pid
       end
@@ -96,11 +96,7 @@ module Pups
     def spawn(command)
       if background
         pid = Process.spawn(command)
-        (@@asyncs ||= []) << {
-          pid: pid,
-          command: command,
-          stop_signal: (stop_signal || "TERM")
-        }
+        (@@asyncs ||= []) << { pid: pid, command: command, stop_signal: (stop_signal || "TERM") }
         Thread.new do
           begin
             Process.wait(pid)
@@ -124,10 +120,7 @@ module Pups
       end
 
       unless $CHILD_STATUS == 0
-        err =
-          Pups::ExecError.new(
-            "#{command} failed with return #{$CHILD_STATUS.inspect}"
-          )
+        err = Pups::ExecError.new("#{command} failed with return #{$CHILD_STATUS.inspect}")
         err.exit_code = $CHILD_STATUS.exitstatus
         raise err
       end

@@ -12,18 +12,14 @@ module Pups
         opts.on(
           "--ignore <element(s)>",
           Array,
-          "Ignore these template configuration elements, multiple elements can be provided (comma-delimited)."
+          "Ignore these template configuration elements, multiple elements can be provided (comma-delimited).",
         )
         opts.on(
           "--gen-docker-run-args",
-          "Output arguments from the pups configuration for input into a docker run command. All other pups config is ignored."
+          "Output arguments from the pups configuration for input into a docker run command. All other pups config is ignored.",
         )
         opts.on("--tags <tag(s)>", Array, "Only run tagged commands.")
-        opts.on(
-          "--skip-tags <tag(s)>",
-          Array,
-          "Run all but listed tagged commands."
-        )
+        opts.on("--skip-tags <tag(s)>", Array, "Run all but listed tagged commands.")
         opts.on("-h", "--help") do
           puts opts
           exit
@@ -56,12 +52,7 @@ module Pups
         conf = nil
         split.each do |data|
           current = YAML.safe_load(data.strip)
-          conf =
-            if conf
-              Pups::MergeCommand.deep_merge(conf, current, :merge_arrays)
-            else
-              current
-            end
+          conf = (conf ? Pups::MergeCommand.deep_merge(conf, current, :merge_arrays) : current)
         end
 
         config =
@@ -69,7 +60,7 @@ module Pups
             conf,
             options[:ignore],
             tags: options[:tags],
-            skip_tags: options[:"skip-tags"]
+            skip_tags: options[:"skip-tags"],
           )
       else
         config =
@@ -77,7 +68,7 @@ module Pups
             input_file,
             options[:ignore],
             tags: options[:tags],
-            skip_tags: options[:"skip-tags"]
+            skip_tags: options[:"skip-tags"],
           )
       end
 
