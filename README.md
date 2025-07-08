@@ -76,6 +76,26 @@ Running: `pups --tags="sometag,anothertag" somefile.yaml` will not run the echo 
 
 Running: `pups --skip-tags="sometag,anothertag" somefile.yaml` will ONLY run the echo goodbye statement.
 
+#### Parameter overriding
+
+The `--params` argument allows pups to dynamically override params set within a configuration for the single pups run.
+
+Note, it is expected to be of the form `key=value`. If it is malformed, a warning will be thrown.
+
+Example:
+
+```
+# somefile.yaml
+
+params:
+  param1: false_prophet
+  param2: also overridden
+run:
+  - exec:
+      cmd: /bin/bash -c 'echo $param1 $param2 >> hello'
+```
+Running `pups --params="param1=true_value,param2=other_true_value" somefile.yaml` will overwrite param1 and param2 with true_value and other_true_value respectively
+
 #### Docker run argument generation
 
 The `--gen-docker-run-args` argument is used to make pups output arguments be in the format of `docker run <arguments output>`. Specifically, pups

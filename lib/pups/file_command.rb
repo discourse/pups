@@ -20,8 +20,6 @@ module Pups
       @type = :bash
     end
 
-    attr_writer :params
-
     def run
       path = interpolate_params(@path)
 

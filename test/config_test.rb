@@ -283,5 +283,15 @@ module Pups
         config["run"][1]
       )
     end
+
+    def test_extra_params
+      config = <<~YAML
+        params:
+          one: 1
+      YAML
+      config = Config.new(YAML.safe_load(config), extra_params: %w[one=2 two=2])
+      assert_equal("2", config.params["one"])
+      assert_equal("2", config.params["two"])
+    end
   end
 end

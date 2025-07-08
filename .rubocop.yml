@@ -1,3 +1,6 @@
 inherit_gem:
   rubocop-discourse: default.yml
 
+AllCops:
+  Exclude:
+    - pups.gemspec
