@@ -44,7 +44,6 @@ module Pups
       @params = @config["params"]
       if extra_params
         extra_params.each do |val|
-          puts val
           key_val = val.split("=", 2)
           if key_val.length == 2
             @params[key_val[0]] = key_val[1]
