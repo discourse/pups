@@ -140,6 +140,7 @@ module Pups
       Cli.run(["--tags", "1,3", cf.path])
       assert_equal("1\n3", File.read(f.path).strip)
     end
+
     def test_cli_skip_tags
       # for testing output
       f = Tempfile.new("test_output")
@@ -163,6 +164,29 @@ module Pups
 
       Cli.run(["--skip-tags", "1,3", cf.path])
       assert_equal("2", File.read(f.path).strip)
+    end
+
+    def test_cli_params
+      # for testing output
+      f = Tempfile.new("test_output")
+      f.close
+
+      # for testing input
+      cf = Tempfile.new("test_config")
+      cf.puts <<~YAML
+        params:
+          one: 0
+          two: 0
+        run:
+          - exec:
+              cmd: echo $one >> #{f.path}
+          - exec:
+              cmd: echo $two >> #{f.path}
+      YAML
+      cf.close
+
+      Cli.run(["--params", "one=1,two=2", cf.path])
+      assert_equal("1\n2", File.read(f.path).strip)
     end
   end
 end

@@ -87,7 +87,6 @@ module Pups
         Pups.log.info("> #{command}")
         pid = spawn(command)
         Pups.log.info(@result.readlines.join("\n")) if @result
-        pid
       end
     rescue StandardError
       raise if @raise_on_fail

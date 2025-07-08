@@ -24,6 +24,11 @@ module Pups
           Array,
           "Run all but listed tagged commands."
         )
+        opts.on(
+          "--params <param(s)>",
+          Array,
+          "Replace params in the config with params listed."
+        )
         opts.on("-h", "--help") do
           puts opts
           exit
@@ -69,7 +74,8 @@ module Pups
             conf,
             options[:ignore],
             tags: options[:tags],
-            skip_tags: options[:"skip-tags"]
+            skip_tags: options[:"skip-tags"],
+            extra_params: options[:params]
           )
       else
         config =
@@ -77,7 +83,8 @@ module Pups
             input_file,
             options[:ignore],
             tags: options[:tags],
-            skip_tags: options[:"skip-tags"]
+            skip_tags: options[:"skip-tags"],
+            extra_params: options[:params]
           )
       end
 

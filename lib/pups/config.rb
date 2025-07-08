@@ -7,8 +7,9 @@ module Pups
     def initialize(
       config,
       ignored = nil,
-      tags: tags = nil,
-      skip_tags: skip_tags = nil
+      tags: nil,
+      skip_tags: nil,
+      extra_params: nil
     )
       @config = config
 
@@ -41,6 +42,16 @@ module Pups
       )
 
       @params = @config["params"]
+      if extra_params
+        extra_params.each do |val|
+          key_val = val.split("=", 2)
+          if key_val.length == 2
+            @params[key_val[0]] = key_val[1]
+          else
+            warn "Malformed param #{val}. Expected param to be of the form `key=value`"
+          end
+        end
+      end
       ENV.each { |k, v| @params["$ENV_#{k}"] = v }
       inject_hooks
     end
@@ -48,14 +59,16 @@ module Pups
     def self.load_file(
       config_file,
       ignored = nil,
-      tags: tags = nil,
-      skip_tags: skip_tags = nil
+      tags: nil,
+      skip_tags: nil,
+      extra_params: nil
     )
       Config.new(
         YAML.load_file(config_file),
         ignored,
         tags: tags,
-        skip_tags: skip_tags
+        skip_tags: skip_tags,
+        extra_params: extra_params
       )
     rescue Exception
       warn "Failed to parse #{config_file}"
@@ -67,14 +80,16 @@ module Pups
     def self.load_config(
       config,
       ignored = nil,
-      tags: tags = nil,
-      skip_tags: skip_tags = nil
+      tags: nil,
+      skip_tags: nil,
+      extra_params: nil
     )
       Config.new(
         YAML.safe_load(config),
         ignored,
         tags: tags,
-        skip_tags: skip_tags
+        skip_tags: skip_tags,
+        extra_params: extra_params
       )
     end
 
@@ -108,10 +123,7 @@ module Pups
 
     # Filter run commands by tag: by default, keep all commands that contain tags.
     # If skip_tags argument is true, keep all commands that DO NOT contain tags.
-    def filter_tags(
-      include_tags: include_tags = nil,
-      exclude_tags: exclude_tags = nil
-    )
+    def filter_tags(include_tags: nil, exclude_tags: nil)
       if include_tags
         @config["run"] = @config["run"].select do |row|
           keep = false
