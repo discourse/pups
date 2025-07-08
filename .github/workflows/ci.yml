@@ -16,10 +16,10 @@ jobs:
       fail-fast: true
       matrix:
         os: [ubuntu-latest]
-        ruby: ["3.2"]
+        ruby: ["3.3"]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
@@ -34,10 +34,10 @@ jobs:
       fail-fast: true
       matrix:
         os: [ubuntu-latest]
-        ruby: ["3.2"]
+        ruby: ["3.3"]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
@@ -52,7 +52,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Release Gem
         uses: discourse/publish-rubygems-action@v2
