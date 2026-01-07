@@ -98,5 +98,44 @@ module Pups
 
       assert_raises(Errno::ECHILD) { Process.waitpid(pid, Process::WNOHANG) }
     end
+
+    def test_stdout_streaming
+      # Starts a long-running process that outputs immediately
+      # and then watches a file before quitting.
+      # If stdout is properly streamed, we should see the output
+      # immediately rather than waiting for the process to end.
+
+      signal_file = Tempfile.new("signal")
+      signal_path = signal_file.path
+      signal_file.close
+
+      reader, writer = IO.pipe
+      original_stdout = $stdout.dup
+
+      $stdout.reopen(writer)
+
+      cmd = ExecCommand.new({})
+      cmd.add("echo 'streamed output'; while [ ! -s #{signal_path} ]; do sleep 0.1; done")
+
+      thread = Thread.new { cmd.run }
+
+      # Wait for output - if streaming works, it appears immediately
+      # If buffered, it would never appear since command loops until signaled
+      ready = IO.select([reader], nil, nil, 2)
+      assert ready, "Output should be available before command completes"
+
+      output = reader.read_nonblock(1000)
+      assert_includes(output, "streamed output")
+    ensure
+      $stdout.reopen(original_stdout) if original_stdout
+
+      writer&.close
+      reader&.close
+
+      File.write(signal_path, "done")
+      signal_file&.unlink
+
+      thread.join(2)
+    end
   end
 end
