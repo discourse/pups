@@ -111,16 +111,23 @@ module Pups
         return pid
       end
 
-      IO.popen(command, "w+") do |f|
-        if stdin
-          # need a way to get stdout without blocking
-          Pups.log.info(stdin)
-          f.write stdin
-          f.close
-        else
-          Pups.log.info(f.readlines.join)
-        end
+      opts = { out: $stdout, err: $stderr }
+
+      if stdin
+        reader, writer = IO.pipe
+        opts[:in] = reader
       end
+
+      pid = Process.spawn(command, opts)
+
+      if stdin
+        reader.close
+        Pups.log.info(stdin)
+        writer.write(stdin)
+        writer.close
+      end
+
+      Process.wait(pid)
 
       unless $CHILD_STATUS == 0
         err =
