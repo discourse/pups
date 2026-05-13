@@ -293,5 +293,49 @@ module Pups
       assert_equal("2", config.params["one"])
       assert_equal("2", config.params["two"])
     end
+
+    def test_warns_on_unknown_top_level_keys
+      io = StringIO.new
+      original_logger = Pups.log
+      Pups.log = Logger.new(io)
+
+      Config.new({ "env" => {}, "weird_random_key" => "foo" })
+
+      assert_match(/Unknown top-level config key 'weird_random_key'/, io.string)
+    ensure
+      Pups.log = original_logger
+    end
+
+    def test_does_not_warn_on_known_top_level_keys
+      io = StringIO.new
+      original_logger = Pups.log
+      Pups.log = Logger.new(io)
+
+      Config.new(
+        {
+          "base_image" => "x",
+          "templates" => ["y"],
+          "env" => {},
+          "hooks" => {},
+          "run" => [],
+        }
+      )
+
+      refute_match(/Unknown top-level config key/, io.string)
+    ensure
+      Pups.log = original_logger
+    end
+
+    def test_does_not_warn_on_explicitly_ignored_keys
+      io = StringIO.new
+      original_logger = Pups.log
+      Pups.log = Logger.new(io)
+
+      Config.new({ "env" => {}, "weird_random_key" => "foo" }, ["weird_random_key"])
+
+      refute_match(/Unknown top-level config key/, io.string)
+    ensure
+      Pups.log = original_logger
+    end
   end
 end

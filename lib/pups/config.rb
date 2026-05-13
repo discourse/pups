@@ -4,6 +4,29 @@ module Pups
   class Config
     attr_reader :config, :params
 
+    # Top-level keys recognized by pups itself or by callers that consume the
+    # same config (notably the discourse_docker launcher). Keys outside this
+    # set are silently ignored, which has historically led to bugs where a
+    # typo or misplaced key produced no warning and no effect.
+    KNOWN_TOP_LEVEL_KEYS = %w[
+      base_image
+      boot_command
+      docker_args
+      env
+      env_template
+      expose
+      hooks
+      labels
+      links
+      no_boot_command
+      params
+      run
+      run_image
+      templates
+      update_pups
+      volumes
+    ].freeze
+
     def initialize(
       config,
       ignored = nil,
@@ -15,6 +38,8 @@ module Pups
 
       # remove any ignored config elements prior to any more processing
       ignored&.each { |e| @config.delete(e) }
+
+      warn_about_unknown_keys
 
       filter_tags(include_tags: tags, exclude_tags: skip_tags)
 
@@ -119,6 +144,22 @@ module Pups
       # Merge all template env variables and process env variables, so that env
       # variables can be provided both by configuration and runtime variables.
       config["env"].each { |k, v| env[k] = v.to_s }
+    end
+
+    # Log a warning for any top-level keys that pups (and the surrounding
+    # discourse_docker launcher) won't read. These are silently ignored at
+    # runtime, so a warning is the only signal a typo or misplaced key
+    # produces nothing.
+    def warn_about_unknown_keys
+      return unless @config.is_a?(Hash)
+
+      unknown = @config.keys - KNOWN_TOP_LEVEL_KEYS
+      unknown.each do |key|
+        Pups.log.warn(
+          "Unknown top-level config key '#{key}' will be ignored. " \
+            "Known keys: #{KNOWN_TOP_LEVEL_KEYS.join(", ")}."
+        )
+      end
     end
 
     # Filter run commands by tag: by default, keep all commands that contain tags.
