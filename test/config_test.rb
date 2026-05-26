@@ -362,6 +362,71 @@ module Pups
       )
     end
 
+    def test_tagged_hooks
+      f = Tempfile.new("test")
+      f.close
+
+      yaml = <<~YAML
+        run:
+          - exec:
+              hook: middle
+              cmd: 1
+              tag:
+                - one_tag
+                - two_tag
+          - exec:
+              hook: middle
+              cmd: 2
+              tag: three_tag
+        hooks:
+          after_middle:
+            - exec: 1.1
+      YAML
+
+      # Hook fires when filtering one tag
+      conf = Config.load_config(yaml, tags: ["one_tag"])
+      config = conf.config
+      assert_equal(
+        {
+          "exec" => {
+            "hook" => "middle",
+            "cmd" => 1,
+            "tag" => %w[one_tag two_tag]
+          }
+        },
+        config["run"][0]
+      )
+      assert_equal({ "exec" => 1.1 }, config["run"][1])
+
+      # Hook fires when filtering a second command
+      conf = Config.load_config(yaml, tags: ["three_tag"])
+      config = conf.config
+      assert_equal(
+        { "exec" => { "hook" => "middle", "cmd" => 2, "tag" => "three_tag" } },
+        config["run"][0]
+      )
+      assert_equal({ "exec" => 1.1 }, config["run"][1])
+
+      # Hook fires only the first command
+      conf = Config.load_config(yaml)
+      config = conf.config
+      assert_equal(config["run"].length, 3)
+      assert_equal(
+        {
+          "exec" => {
+            "hook" => "middle",
+            "cmd" => 1,
+            "tag" => %w[one_tag two_tag]
+          }
+        },
+        config["run"][0]
+      )
+      assert_equal(
+        { "exec" => { "hook" => "middle", "cmd" => 2, "tag" => "three_tag" } },
+        config["run"][1]
+      )
+    end
+
     def test_extra_params
       config = <<~YAML
         params:
