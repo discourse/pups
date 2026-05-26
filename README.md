@@ -70,7 +70,9 @@ run:
       tag: anothertag
   - exec:
       cmd: /bin/bash -c 'echo goodbye >> hello'
-      tag: thirdtag
+      tag:
+        - thirdtag
+        - fourth_tag
 ```
 Running: `pups --tags="sometag,anothertag" somefile.yaml` will not run the echo goodbye statement.
 

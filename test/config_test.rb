@@ -284,6 +284,149 @@ module Pups
       )
     end
 
+    def test_multiple_tags
+      f = Tempfile.new("test")
+      f.close
+
+      yaml = <<~YAML
+        run:
+          - exec: 1
+          - exec:
+              hook: middle
+              cmd: 2
+              tag:
+                - one_tag
+                - two_tag
+          - exec:
+              cmd: 3
+              tag: three_tag
+        hooks:
+          after_middle:
+            - exec: 2.1
+          before_middle:
+            - exec: 1.9
+      YAML
+
+      # No tagging loads everything
+      conf = Config.load_config(yaml)
+      config = conf.config
+      assert_equal({ "exec" => 1 }, config["run"][0])
+      assert_equal({ "exec" => 1.9 }, config["run"][1])
+      assert_equal(
+        {
+          "exec" => {
+            "hook" => "middle",
+            "cmd" => 2,
+            "tag" => %w[one_tag two_tag]
+          }
+        },
+        config["run"][2]
+      )
+      assert_equal({ "exec" => 2.1 }, config["run"][3])
+      assert_equal(
+        { "exec" => { "cmd" => 3, "tag" => "three_tag" } },
+        config["run"][4]
+      )
+
+      # hooks get applied if hook command is not filtered
+      conf = Config.load_config(yaml, tags: ["two_tag"])
+      config = conf.config
+      assert_equal({ "exec" => 1.9 }, config["run"][0])
+      assert_equal(
+        {
+          "exec" => {
+            "hook" => "middle",
+            "cmd" => 2,
+            "tag" => %w[one_tag two_tag]
+          }
+        },
+        config["run"][1]
+      )
+      assert_equal({ "exec" => 2.1 }, config["run"][2])
+
+      # hooks get filtered out if the main hook command is filtered
+      conf = Config.load_config(yaml, tags: ["three_tag"])
+      config = conf.config
+      assert_equal(
+        { "exec" => { "cmd" => 3, "tag" => "three_tag" } },
+        config["run"][0]
+      )
+
+      # skip tags filter out commands with tags
+      conf = Config.load_config(yaml, skip_tags: ["two_tag"])
+      config = conf.config
+      assert_equal({ "exec" => 1 }, config["run"][0])
+      assert_equal(
+        { "exec" => { "cmd" => 3, "tag" => "three_tag" } },
+        config["run"][1]
+      )
+    end
+
+    def test_tagged_hooks
+      f = Tempfile.new("test")
+      f.close
+
+      yaml = <<~YAML
+        run:
+          - exec:
+              hook: middle
+              cmd: 1
+              tag:
+                - one_tag
+                - two_tag
+          - exec:
+              hook: middle
+              cmd: 2
+              tag: three_tag
+        hooks:
+          after_middle:
+            - exec: 1.1
+      YAML
+
+      # Hook fires when filtering one tag
+      conf = Config.load_config(yaml, tags: ["one_tag"])
+      config = conf.config
+      assert_equal(
+        {
+          "exec" => {
+            "hook" => "middle",
+            "cmd" => 1,
+            "tag" => %w[one_tag two_tag]
+          }
+        },
+        config["run"][0]
+      )
+      assert_equal({ "exec" => 1.1 }, config["run"][1])
+
+      # Hook fires when filtering a second command
+      conf = Config.load_config(yaml, tags: ["three_tag"])
+      config = conf.config
+      assert_equal(
+        { "exec" => { "hook" => "middle", "cmd" => 2, "tag" => "three_tag" } },
+        config["run"][0]
+      )
+      assert_equal({ "exec" => 1.1 }, config["run"][1])
+
+      # Hook fires only the first command
+      conf = Config.load_config(yaml)
+      config = conf.config
+      assert_equal(config["run"].length, 3)
+      assert_equal(
+        {
+          "exec" => {
+            "hook" => "middle",
+            "cmd" => 1,
+            "tag" => %w[one_tag two_tag]
+          }
+        },
+        config["run"][0]
+      )
+      assert_equal(
+        { "exec" => { "hook" => "middle", "cmd" => 2, "tag" => "three_tag" } },
+        config["run"][1]
+      )
+    end
+
     def test_extra_params
       config = <<~YAML
         params:

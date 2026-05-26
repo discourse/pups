@@ -130,7 +130,11 @@ module Pups
           command = row.first
           if command[1].is_a?(Hash)
             tag = command[1]["tag"]
-            keep = include_tags.include?(tag)
+            if tag.is_a?(Array)
+              keep = tag.any? { |t| include_tags.include?(t) }
+            else
+              keep = include_tags.include?(tag)
+            end
           end
           keep
         end
@@ -142,7 +146,11 @@ module Pups
           command = row.first
           if command[1].is_a?(Hash)
             tag = command[1]["tag"]
-            keep = !exclude_tags.include?(tag)
+            if tag.is_a?(Array)
+              keep = tag.all? { |t| !exclude_tags.include?(t) }
+            else
+              keep = !exclude_tags.include?(tag)
+            end
           end
           keep
         end
